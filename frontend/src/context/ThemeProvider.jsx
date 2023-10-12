@@ -5,7 +5,6 @@ export const ThemeContext = createContext()
 const defaultTheme = 'light';
 const darkTheme = 'dark';
 
-
 const ThemeProvider = ({children}) => {
 
   const toggleTheme = ()=>{

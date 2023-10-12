@@ -43,12 +43,13 @@ const SignIn = () => {
     setUserInfo(updatedUserInfo)
   }
 
-  useEffect(()=>{
-    if(useAuth.authInfo.isLoggedIn){
-      // move our user from the signin page to somewhere else
-      navigate('/')
-    }
-  },[useAuth.authInfo.isLoggedIn])
+  // we are now directing to the home pages from the AuthProvider, the useNavigate('/') there sends the the / of whatever was rendered
+  // useEffect(()=>{
+  //   if(useAuth.authInfo.isLoggedIn){
+  //     // move our user from the signin page to somewhere else
+  //     navigate('/')
+  //   }
+  // },[useAuth.authInfo.isLoggedIn])
 
   return (
     <FormContainer>

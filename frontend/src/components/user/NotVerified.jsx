@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 const NotVerified = () => {
     const useAuth = useContext(AuthContext)
-    console.log(useAuth.authInfo)
+    // console.log("I am from NotVerified: ",useAuth.authInfo)
     
     const navigate = useNavigate()
     const navigateToVerification = ()=>{
