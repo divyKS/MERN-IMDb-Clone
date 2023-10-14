@@ -46,6 +46,8 @@ const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultCo
 	return(
         <div className='relative outline-none' tabIndex={1} onKeyDown={handleKeyDown} onBlur={handleOnBlur}>
             <input 
+                id={name}
+                name={name}
                 type="text" 
                 className={getInputStyle()}
                 placeholder={placeholder}
@@ -88,7 +90,7 @@ const SearchResults = ({ visible, results=[], focusedIndex, onSelect, renderItem
     if(!visible) return null;
 
     return (
-        <div className="absolute right-0 left-0 top-10 mt-1 bg-white dark:bg-secondary shadow-md p-2 max-h-64 space-y-2 overflow-auto custom-scroll-bar">
+        <div className="z-10 absolute right-0 left-0 top-10 mt-1 bg-white dark:bg-secondary shadow-md p-2 max-h-64 space-y-2 overflow-auto custom-scroll-bar">
             {results.map((result, index)=>{
                 
                 const getSelectedClass = () => {
@@ -97,7 +99,8 @@ const SearchResults = ({ visible, results=[], focusedIndex, onSelect, renderItem
 
                 return( 
                     <ResultCard 
-                        key={result.id}
+                        // key={result.id} to make LiveSearch more useable, we can't use id
+                        key={index.toString()}
                         ref={(index===focusedIndex)? divRef: null}
 
                         item={result}
