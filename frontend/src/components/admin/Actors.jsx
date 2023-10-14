@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const Actors = () => {
-  return (
-    <div>Actors</div>
-  )
-}
+  return <div>Actors</div>;
+};
 
-export default Actors
+export default Actors;

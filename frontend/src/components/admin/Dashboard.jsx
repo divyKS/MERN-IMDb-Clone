@@ -1,9 +1,10 @@
-import React from 'react'
+import React from "react";
+import MovieUpload from "./MovieUpload";
 
 const Dashboard = () => {
   return (
-    <div>Dashboard</div>
+    <MovieUpload />
   )
-}
+};
 
-export default Dashboard
+export default Dashboard;

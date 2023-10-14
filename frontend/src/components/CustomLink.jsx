@@ -1,16 +1,15 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React from "react";
+import { Link } from "react-router-dom";
 
-const CustomLink = ({to, content}) => {
+const CustomLink = ({ to, content }) => {
   return (
-    <Link 
-        className='dark:text-dark-subtle text-light-subtle dark:hover:text-white hover:text-primary transition' 
-        to={to}
+    <Link
+      className="dark:text-dark-subtle text-light-subtle dark:hover:text-white hover:text-primary transition"
+      to={to}
     >
-        {content}
+      {content}
     </Link>
+  );
+};
 
-  )
-}
-
-export default CustomLink
+export default CustomLink;

@@ -1,10 +1,8 @@
-import React, { useContext } from 'react'
-import NotVerified from './user/NotVerified'
+import React, { useContext } from "react";
+import NotVerified from "./user/NotVerified";
 
 const HomePage = () => {
-  return (
-    <NotVerified></NotVerified>
-  )
-}
+  return <NotVerified></NotVerified>;
+};
 
-export default HomePage
+export default HomePage;

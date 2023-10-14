@@ -1,28 +1,31 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const actorSchema = mongoose.Schema({
+const actorSchema = mongoose.Schema(
+  {
     name: {
-        type: String, 
-        trim: true,
-        required: true
+      type: String,
+      trim: true,
+      required: true,
     },
     about: {
-        type: String,
-        trim: true,
-        required: true
+      type: String,
+      trim: true,
+      required: true,
     },
     gender: {
-        type: String,
-        trim: true,
-        required: true
+      type: String,
+      trim: true,
+      required: true,
     },
     avatar: {
-        type: Object,
-        url: String,
-        public_id: String
-    }
-}, {timestamps: true});
+      type: Object,
+      url: String,
+      public_id: String,
+    },
+  },
+  { timestamps: true },
+);
 
-actorSchema.index({"name": "text"});
+actorSchema.index({ name: "text" });
 
-module.exports = mongoose.model('Actor', actorSchema);
+module.exports = mongoose.model("Actor", actorSchema);

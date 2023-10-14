@@ -1,11 +1,11 @@
-import React from 'react'
+import React from "react";
 
-const Title = ({content}) => {
+const Title = ({ content }) => {
   return (
     <h1 className="text-xl dark:text-white text-secondary font-semibold text-center">
-            {content}
+      {content}
     </h1>
-  )
-}
+  );
+};
 
-export default Title
+export default Title;

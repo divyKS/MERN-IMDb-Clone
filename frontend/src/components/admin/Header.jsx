@@ -1,50 +1,58 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
-import {AiOutlinePlus} from 'react-icons/ai'
-import {BsFillSunFill} from 'react-icons/bs'
-import { ThemeContext } from '../../context/ThemeProvider'
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { AiOutlinePlus } from "react-icons/ai";
+import { BsFillSunFill } from "react-icons/bs";
+import { ThemeContext } from "../../context/ThemeProvider";
 
-const Header = () => {
-    const [showOptions, setShowOptions] = useState(false)
-    const useTheme = useContext(ThemeContext)
-    
+const Header = ({ onAddActorClick, onAddMovieClick }) => {
+  const [showOptions, setShowOptions] = useState(false);
+  const useTheme = useContext(ThemeContext);
+  const options = [
+    {
+      title: "Add Actor",
+      onClick: onAddActorClick,
+    },
+    {
+      title: "Add Movie",
+      onClick: onAddMovieClick,
+    },
+  ];
+
   return (
+    <div className="flex items-center justify-between relative">
+      <input
+        type="text"
+        className="border-2 dark:border-dark-subtle border-light-subtle  dark:focus:border-white focus:border-primary dark:text-white transition bg-transparent rounded text-lg p-1 outline-none"
+        placeholder="Search Movie..."
+      />
 
-    <div className='flex items-center justify-between relative'>
-        <input 
-            type="text" 
-            className='border-2 dark:border-dark-subtle border-light-subtle  dark:focus:border-white focus:border-primary dark:text-white transition bg-transparent rounded text-lg p-1 outline-none'
-            placeholder='Search Movie...'
-        />
+      <div className="flex items-center space-x-3">
+        <button
+          className="dark:text-white text-light-subtle p-1 rounded"
+          onClick={useTheme.toggleTheme}
+        >
+          <BsFillSunFill size={24} />
+        </button>
 
-        <div className='flex items-center space-x-3'>
-            
-            <button 
-                className='dark:text-white text-light-subtle p-1 rounded' 
-                onClick={useTheme.toggleTheme}
-            >
-                <BsFillSunFill size={24}/>
-            </button>
+        {/* first we had onClick={()=>setShowOptions(!showOptions)} but now we are using it to only open*/}
+        <button
+          onClick={() => setShowOptions(true)}
+          className="flex items-center space-x-2 dark:border-dark-subtle border-light-subtle dark:text-white text-black  hover:border-primary hover:opacity-80 transition font-semibold border-2 rounded text-lg py-1 px-3"
+        >
+          <span>Create</span>
+          <AiOutlinePlus />
+        </button>
+      </div>
 
-            {/* first we had onClick={()=>setShowOptions(!showOptions)} but now we are using it to only open*/}
-            <button 
-                onClick={()=>setShowOptions(true)} 
-                className='flex items-center space-x-2 dark:border-dark-subtle border-light-subtle dark:text-white text-black  hover:border-primary hover:opacity-80 transition font-semibold border-2 rounded text-lg py-1 px-3'>
-                <span>Create</span>
-                <AiOutlinePlus />
-            </button>
-        </div>
-        
-
-        <CreateOptions 
-            visible={showOptions} 
-            onClose={()=>setShowOptions(false)}
-        />
-
+      <CreateOptions
+        visible={showOptions}
+        onClose={() => setShowOptions(false)}
+        options={options}
+      />
     </div>
-  )
-}
+  );
+};
 
-const CreateOptions = ({ visible, onClose }) => {
+const CreateOptions = ({ visible, onClose, options }) => {
   const container = useRef();
   const containerID = "options-container";
 
@@ -56,7 +64,7 @@ const CreateOptions = ({ visible, onClose }) => {
       const { parentElement, id } = e.target;
 
       // console.log("You clicked on: ", parentElement)
-      // console.log("It's ID is: ", id)      
+      // console.log("It's ID is: ", id)
       if (parentElement.id === containerID || id === containerID) return;
 
       if (container.current) {
@@ -84,8 +92,16 @@ const CreateOptions = ({ visible, onClose }) => {
         e.target.classList.remove("animate-scale");
       }}
     >
-      <Option>Add Movie</Option>
-      <Option>Add Actor</Option>
+      {options.map((option) => {
+        const title = option.title;
+        const onClick = option.onClick;
+
+        return (
+          <Option onClick={onClick} key={title}>
+            {title}
+          </Option>
+        );
+      })}
     </div>
   );
 };
@@ -101,4 +117,4 @@ const Option = ({ children, onClick }) => {
   );
 };
 
-export default Header
+export default Header;
