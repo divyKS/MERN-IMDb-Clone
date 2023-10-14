@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {AiOutlineClose} from 'react-icons/ai';
 
-const TagsInput = () => {
+const TagsInput = ({ name, onChange }) => {
     // user writes some text, presses enter or comma, this runs a method which creates an array for the tags, and use map method to render the containers in front of the input field and use ref hook to bring back focus to input tag
     // we are not going to take input inside input tags, we'll replicate it using a div
     const [tag, setTag] = useState('');
@@ -16,6 +16,7 @@ const TagsInput = () => {
         const value = e.target.value;
         // console.log("INPUT onChange: ", value);
         if(value !== ',') setTag(value);
+        // onChange(tags); // this is used to change the state of our movieInfo so that we can collect all the things that we are entering into the form
     };
 
     const handleKeyDown = (e)=>{
@@ -54,6 +55,7 @@ const TagsInput = () => {
 
     useEffect(()=>{
         inputRef.current.scrollIntoView();
+        onChange(tags);
     }, [tags]);
 
 	return (
@@ -64,6 +66,7 @@ const TagsInput = () => {
                 })}
                 <input 
                     ref={inputRef}
+                    id={name}
                     type="text" 
                     className='h-full flex-grow bg-transparent outline-none dark:text-white'
                     placeholder='Add tags...'

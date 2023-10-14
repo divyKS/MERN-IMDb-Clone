@@ -1,14 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import TagsInput from '../TagsInput';
 import LiveSearch from '../LiveSearch';
 import { commonInputClasses } from '../../utils/theme';
 import { results } from '../../fakeData';
+import Submit from '../form/Submit';
 
+// the trailer is being handeled in the MovieUpload component
+const defaultMovieInfo = {
+    title: '',
+    storyLine: '',
+    tags: [],
+    cast: [],
+    director: {},
+    writers: [],
+    releaseDate: '',
+    poster: null,
+    genres: [],
+    type: '',
+    language: '',
+    status: '',
+}
 
 const MovieForm = () => {
-    
+    const [movieInfo, setMovieInfo] = useState({...defaultMovieInfo});
+
+    const { title, storyLine, director } = movieInfo;
+
     const handleSubmit = (e)=>{
         e.preventDefault();
+        console.log(movieInfo);
     };
 
     const renderItem = (result) => {
@@ -20,6 +40,16 @@ const MovieForm = () => {
         );
     };
 
+    const handleChange = (e) => {
+        const target = e.target;
+        const {value, name} = target;
+        setMovieInfo({...movieInfo, [name]: value});
+    };
+
+    const updateTags = (tags) => {
+        setMovieInfo({...movieInfo, "tags": tags});
+    };
+
 	return (
 		// our form is in two parts; LHS RHS, space-x for it and hence flex
 		<form onSubmit={handleSubmit} className="flex space-x-3">
@@ -29,6 +59,9 @@ const MovieForm = () => {
                     <input
                         id="title"
                         type="text"
+                        name="title"
+                        value={title}
+                        onChange={handleChange}
                         className={ commonInputClasses + "border-b-2 font-semibold text-xl"}
                         placeholder="Movie Name"
                     />
@@ -38,6 +71,9 @@ const MovieForm = () => {
                     <Label htmlFor='storyLine'>Story Line</Label>
                     <textarea 
                         id="storyLine" 
+                        value={storyLine}
+                        onChange={handleChange}
+                        name='storyLine'
                         className={commonInputClasses + ' font-semibold text-xl resize-none h-24 border-b-2'} 
                         placeholder='Movie Story Line'
                     />
@@ -45,16 +81,21 @@ const MovieForm = () => {
 
                 <div>
                     <Label htmlFor='tags'>Tags</Label>
-                    <TagsInput name='tags'/>
+                    <TagsInput name='tags' onChange={updateTags}/>
                 </div>
 
-                <LiveSearch
-                    results={results}
-                    placeholder='Search Profile'
-                    renderItem={renderItem}
-                    onSelect={(result) => console.log(result)}
-                />
+                <div>
+                    <Label htmlFor='director'>Director</Label>
+                    <LiveSearch
+                        name='director'
+                        results={results}
+                        placeholder='Search Profile'
+                        renderItem={renderItem}
+                        onSelect={(result) => console.log(result)}
+                    />
+                </div>
 
+                <Submit value='Upload Movie'/>
             </div>
 			<div className="w-[30%] h-5 bg-blue-400"></div>
 		</form>

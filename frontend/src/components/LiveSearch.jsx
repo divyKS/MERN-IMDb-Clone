@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { commonInputClasses } from '../utils/theme';
 // import { results } from '../fakeData';
 
-const LiveSearch = ({ value = "", placeholder = "", results = [], resultContainerStyle, selectedResultStyle, inputStyle, renderItem=null, onChange=null, onSelect=null}) => {
+const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultContainerStyle, selectedResultStyle, inputStyle, renderItem=null, onChange=null, onSelect=null}) => {
     const [displaySearch, setDisplaySearch] = useState(false);
     const [focusedIndex, setFocusedIndex] = useState(-1);
 
@@ -31,6 +31,7 @@ const LiveSearch = ({ value = "", placeholder = "", results = [], resultContaine
             }
         }
         if(key === 'Enter') return handleSelection(results[focusedIndex]);//nextCount is not needed here, we are not navigating, we are already on the correct item
+        if(key === 'Escape') return handleOnBlur();
         setFocusedIndex(nextCount);         
     };
 
@@ -97,7 +98,7 @@ const SearchResults = ({ visible, results=[], focusedIndex, onSelect, renderItem
                 return( 
                     <ResultCard 
                         key={result.id}
-                        // ref={(index===focusedIndex)? divRef: null}
+                        ref={(index===focusedIndex)? divRef: null}
 
                         item={result}
                         renderItem={renderItem}

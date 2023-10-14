@@ -20,7 +20,7 @@ const MovieUpload = () => {
 		cast: [],
 		director: {},
 		writers: [],
-		releseDate: '',
+		releaseDate: '',
 		poster: null,
 		genres: [],
 		type: '',
