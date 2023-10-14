@@ -6,6 +6,7 @@ import { results } from '../../fakeData';
 import Submit from '../form/Submit';
 import { NotificationContext } from '../../context/NotificationProvider';
 import ModelContainer from '../model/ModelContainer';
+import WritersModel from '../model/WritersModel';
 
 // the trailer is being handeled in the MovieUpload component
 const defaultMovieInfo = {
@@ -25,7 +26,7 @@ const defaultMovieInfo = {
 
 const MovieForm = () => {
     const [movieInfo, setMovieInfo] = useState({...defaultMovieInfo});
-    const [showModel, setShowModel] = useState(false);
+    const [showWritersModel, setShowWritersModel] = useState(false);
 
     const { title, storyLine, director, writers } = movieInfo;
 
@@ -66,6 +67,14 @@ const MovieForm = () => {
         }
 
         setMovieInfo({...movieInfo, "writers": [...alreadyAddedWriters, profile]});
+    };
+
+
+    const handleWriterRemove = (profileId) => {
+        const { writers } = movieInfo;
+        const newWriters = writers.filter(({id})=>id!==profileId);
+        if(!newWriters.length) setShowWritersModel(false); //to hide if there are no entries left
+        setMovieInfo({...movieInfo, writers: [...newWriters]});
     };
 
 	return (
@@ -120,7 +129,7 @@ const MovieForm = () => {
                 <div>
                     <div className="flex justify-between">
                         <LabelWithBadge badge={writers.length} htmlFor='writers'>Writers</LabelWithBadge>
-                        <button onClick={()=>setShowModel(true)} type='button' className='dark:text-white text-primary hover:underline transition'>View All</button>
+                        <button onClick={()=>setShowWritersModel(true)} type='button' className='dark:text-white text-primary hover:underline transition'>View All</button>
                     </div>
                     <LiveSearch
                         name='writers'
@@ -137,9 +146,12 @@ const MovieForm = () => {
             </div>
 			<div className="w-[30%] h-5 bg-blue-400"></div>
 		</form>
-        <ModelContainer visible={showModel} onClose={()=>setShowModel(false)}>
-            <div className='p-20 bg-red-400'></div>
-        </ModelContainer>
+        <WritersModel 
+            visible={showWritersModel}
+            profiles={writers}
+            onClose={()=>setShowWritersModel(false)}
+            onRemoveClick={handleWriterRemove}
+        />
         </>
 	);
 };
