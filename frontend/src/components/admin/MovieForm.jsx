@@ -5,8 +5,9 @@ import { commonInputClasses } from '../../utils/theme';
 import { results } from '../../fakeData';
 import Submit from '../form/Submit';
 import { NotificationContext } from '../../context/NotificationProvider';
-import ModelContainer from '../model/ModelContainer';
 import WritersModel from '../model/WritersModel';
+import CastForm from '../form/CastForm';
+import CastModel from '../model/CastModel';
 
 // the trailer is being handeled in the MovieUpload component
 const defaultMovieInfo = {
@@ -27,8 +28,9 @@ const defaultMovieInfo = {
 const MovieForm = () => {
     const [movieInfo, setMovieInfo] = useState({...defaultMovieInfo});
     const [showWritersModel, setShowWritersModel] = useState(false);
+    const [showCastModel, setShowCastModel] = useState(false);
 
-    const { title, storyLine, director, writers } = movieInfo;
+    const { title, storyLine, director, writers, cast } = movieInfo;
 
     const useNotification = useContext(NotificationContext);
 
@@ -77,10 +79,22 @@ const MovieForm = () => {
         setMovieInfo({...movieInfo, writers: [...newWriters]});
     };
 
+    const updateCast = (cast) => {
+        const presentCast = movieInfo.cast;
+        setMovieInfo({...movieInfo, cast: [...presentCast, cast]});
+    };
+
+    const handleCastRemove = (profileId) => {
+        const presentCast = movieInfo.cast;
+        const newCast = presentCast.filter(({profile})=>profile.id!==profileId);
+        if(!newCast.length) setShowCastModel(false);
+        setMovieInfo({...movieInfo, cast: [...newCast]});
+    };
+
 	return (
         <>
 		{/* // our form is in two parts; LHS RHS, space-x for it and hence flex */}
-		<form onSubmit={handleSubmit} className="flex space-x-3">
+		<div className="flex space-x-3">
             <div className="w-[70%] h-5 space-y-5">
                 <div>
                     <Label htmlFor='title'>Title</Label>
@@ -128,8 +142,16 @@ const MovieForm = () => {
 
                 <div>
                     <div className="flex justify-between">
-                        <LabelWithBadge badge={writers.length} htmlFor='writers'>Writers</LabelWithBadge>
-                        <button onClick={()=>setShowWritersModel(true)} type='button' className='dark:text-white text-primary hover:underline transition'>View All</button>
+                        <LabelWithBadge 
+                            badge={writers.length}
+                            htmlFor='writers'
+                        >
+                            Writers
+                        </LabelWithBadge>
+                        <ViewAllButton 
+                            visible={writers.length}
+                            onClick={()=>setShowWritersModel(true)}
+                        >View All</ViewAllButton>
                     </div>
                     <LiveSearch
                         name='writers'
@@ -141,17 +163,43 @@ const MovieForm = () => {
                     />
                 </div>
 
+                <div>
+                    <div className="flex justify-between">
+                        <LabelWithBadge 
+                            badge={cast.length}
+                        >
+                            Add Cast & Crew
+                        </LabelWithBadge>
+                        <ViewAllButton 
+                            visible={cast.length}
+                            onClick={()=>setShowCastModel(true)}
+                        >
+                            View All
+                        </ViewAllButton>
+                    </div>
+                    {/* <LabelWithBadge>Add Cast & Crew</LabelWithBadge> */}
+                    <CastForm onSubmit={updateCast}></CastForm>
+                </div>
 
-                <Submit value='Upload Movie'/>
+                <Submit value='Upload Movie' onClick={handleSubmit} type='button'/>
             </div>
 			<div className="w-[30%] h-5 bg-blue-400"></div>
-		</form>
+		</div>
+
         <WritersModel 
             visible={showWritersModel}
             profiles={writers}
             onClose={()=>setShowWritersModel(false)}
             onRemoveClick={handleWriterRemove}
         />
+
+        <CastModel 
+            visible={showCastModel}
+            cast={cast}
+            onClose={()=>setShowCastModel(false)}
+            onRemoveClick={handleCastRemove}
+        />
+
         </>
 	);
 };
@@ -165,6 +213,7 @@ const Label = ({ children, htmlFor }) => {
 };
 
 const LabelWithBadge = ({ children, htmlFor, badge=0 }) => {
+
     const renderBadge = () => {
         if(!badge) return null;
         return (
@@ -183,5 +232,18 @@ const LabelWithBadge = ({ children, htmlFor, badge=0 }) => {
 };
 
 // className="dark:text-dark-subtle text-light-subtle font-semibold"
+
+const ViewAllButton = ({ visible, children, onClick }) => {
+    if(!visible) return null;
+    return (
+        <button 
+            onClick={onClick}
+            type='button'
+            className='dark:text-white text-primary hover:underline transition'
+        >
+            {children}
+        </button>
+    );
+};
 
 export default MovieForm;

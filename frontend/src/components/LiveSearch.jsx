@@ -36,7 +36,10 @@ const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultCo
     };
 
     const handleSelection = (selectedItem) => {
-        onSelect(selectedItem);
+        if(selectedItem) {
+            onSelect(selectedItem);
+            setDisplaySearch(false);
+        } // if nothing is selected, then pressing enter should do nothing
     };
 
     const getInputStyle = () => {
