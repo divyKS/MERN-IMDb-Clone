@@ -154,7 +154,7 @@ exports.searchActor = async (req, res) => {
 
   // each object in result array has fields which we don't require: createdAt, updatedAt, __v
   const formattedResultArray = result.map((actor) => formatActor(actor));
-  res.json(formattedResultArray);
+  res.json({"results": formattedResultArray});
 };
 
 exports.getLatestActors = async (req, res) => {
