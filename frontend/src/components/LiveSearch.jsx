@@ -5,6 +5,7 @@ import { commonInputClasses } from '../utils/theme';
 const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultContainerStyle, selectedResultStyle, inputStyle, renderItem=null, onChange=null, onSelect=null}) => {
     const [displaySearch, setDisplaySearch] = useState(false);
     const [focusedIndex, setFocusedIndex] = useState(-1);
+    const [defaultValue, setDefaultValue] = useState('');
 
     const handleOnFocus = () => {
         if(results.length) setDisplaySearch(true);
@@ -46,6 +47,16 @@ const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultCo
         return inputStyle? inputStyle: commonInputClasses + " border-2 rounded p-1 text-lg ";
     };
 
+    const handleChange = (e) => {
+        setDefaultValue(e.target.value)
+        onChange && onChange(e);
+    };
+
+    // since we could not edit the actor writer fields by backspaces etc
+    useEffect(()=>{
+        if(value) setDefaultValue(value);
+    },[value]);
+
 	return(
         <div className='relative outline-none' tabIndex={1} onKeyDown={handleKeyDown} onBlur={handleOnBlur}>
             <input 
@@ -55,8 +66,9 @@ const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultCo
                 className={getInputStyle()}
                 placeholder={placeholder}
                 onFocus={handleOnFocus}
-                value={value}
-                onChange={onChange}
+                value={defaultValue}
+                onChange={handleChange}
+                // onChange={onChange}
                 // onBlur={handleOnBlur}
                 // onKeyDown={handleKeyDown}
             />

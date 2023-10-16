@@ -8,6 +8,11 @@ import { NotificationContext } from '../../context/NotificationProvider';
 import WritersModel from '../model/WritersModel';
 import CastForm from '../form/CastForm';
 import CastModel from '../model/CastModel';
+import PosterSelector from '../PosterSelector';
+import GenresSelector from '../GenresSelector';
+import GenresModel from '../model/GenresModel';
+import Selector from '../Selector';
+import { languageOptions, statusOptions, typeOptions } from '../../utils/options';
 
 // the trailer is being handeled in the MovieUpload component
 const defaultMovieInfo = {
@@ -29,8 +34,10 @@ const MovieForm = () => {
     const [movieInfo, setMovieInfo] = useState({...defaultMovieInfo});
     const [showWritersModel, setShowWritersModel] = useState(false);
     const [showCastModel, setShowCastModel] = useState(false);
+    const [showGenresModel, setShowGenresModel] = useState(false);
+    const [selectedPosterForUI, setSelectedPosterForUI] = useState('');
 
-    const { title, storyLine, director, writers, cast } = movieInfo;
+    const { title, storyLine, director, writers, cast, tags, genres, type, language, status } = movieInfo;
 
     const useNotification = useContext(NotificationContext);
 
@@ -48,9 +55,18 @@ const MovieForm = () => {
         );
     };
 
+    const updatePosterForUI = (inputFile) => {
+        const url = URL.createObjectURL(inputFile);
+        setSelectedPosterForUI(url);
+    };
+
     const handleChange = (e) => {
-        const target = e.target;
-        const {value, name} = target;
+        const {value, name, files} = e.target;
+        if(name === 'poster'){
+            const posterInput = files[0]; // this can't be used as it is for the image`
+            updatePosterForUI(posterInput);
+            return setMovieInfo({...movieInfo, "poster": posterInput});
+        }
         setMovieInfo({...movieInfo, [name]: value});
     };
 
@@ -79,23 +95,27 @@ const MovieForm = () => {
         setMovieInfo({...movieInfo, writers: [...newWriters]});
     };
 
-    const updateCast = (cast) => {
+    const updateCast = (updatedCast) => {
         const presentCast = movieInfo.cast;
-        setMovieInfo({...movieInfo, cast: [...presentCast, cast]});
+        setMovieInfo({...movieInfo, "cast": [...presentCast, updatedCast]});
     };
 
     const handleCastRemove = (profileId) => {
         const presentCast = movieInfo.cast;
         const newCast = presentCast.filter(({profile})=>profile.id!==profileId);
         if(!newCast.length) setShowCastModel(false);
-        setMovieInfo({...movieInfo, cast: [...newCast]});
+        setMovieInfo({...movieInfo, "cast": [...newCast]});
+    };
+
+    const updateGenre = (selectedGenres) => {
+        setMovieInfo({...movieInfo, "genres": selectedGenres});
     };
 
 	return (
         <>
 		{/* // our form is in two parts; LHS RHS, space-x for it and hence flex */}
 		<div className="flex space-x-3">
-            <div className="w-[70%] h-5 space-y-5">
+            <div className="w-[70%] space-y-5">
                 <div>
                     <Label htmlFor='title'>Title</Label>
                     <input
@@ -123,7 +143,7 @@ const MovieForm = () => {
 
                 <div>
                     <Label htmlFor='tags'>Tags</Label>
-                    <TagsInput name='tags' onChange={updateTags}/>
+                    <TagsInput value={tags} name='tags' onChange={updateTags}/>
                 </div>
 
                 <div>
@@ -159,7 +179,6 @@ const MovieForm = () => {
                         placeholder='Search Profile'
                         renderItem={renderItem}
                         onSelect={updateWriters}
-                        value={director.name}
                     />
                 </div>
 
@@ -180,10 +199,33 @@ const MovieForm = () => {
                     {/* <LabelWithBadge>Add Cast & Crew</LabelWithBadge> */}
                     <CastForm onSubmit={updateCast}></CastForm>
                 </div>
-
+                
+                <input 
+                    type="date"
+                    className={commonInputClasses + ' border-2 rounded p-1 w-auto'}
+                    onChange={handleChange}
+                    name='releaseDate'
+                />
                 <Submit value='Upload Movie' onClick={handleSubmit} type='button'/>
             </div>
-			<div className="w-[30%] h-5 bg-blue-400"></div>
+
+			<div className="w-[30%] space-y-5">
+                <PosterSelector 
+                    name='poster'
+                    onChange={handleChange}
+                    selectedPoster={selectedPosterForUI}
+                    accept='image/jpg, image/jpeg, image/png'
+                    label='Select poster'
+                />
+                <GenresSelector
+                    onClick={()=>setShowGenresModel(true)}
+                    badge={genres.length}                    
+                />
+                <Selector onChange={handleChange} name='type' value={type} label='Type' options={typeOptions}/>
+                <Selector onChange={handleChange} name='language' value={language} label='Language' options={languageOptions}/>
+                <Selector onChange={handleChange} name='status' value={status} label='Status' options={statusOptions}/>
+            </div>
+
 		</div>
 
         <WritersModel 
@@ -198,6 +240,14 @@ const MovieForm = () => {
             cast={cast}
             onClose={()=>setShowCastModel(false)}
             onRemoveClick={handleCastRemove}
+        />
+
+        <GenresModel 
+            visible={showGenresModel}
+            onClose={()=>setShowGenresModel(false)}
+            // onRemoveClick={handleGenresRemove}
+            onSubmit={updateGenre}
+            previousSelection={genres}
         />
 
         </>
@@ -230,8 +280,6 @@ const LabelWithBadge = ({ children, htmlFor, badge=0 }) => {
         </div>
     );
 };
-
-// className="dark:text-dark-subtle text-light-subtle font-semibold"
 
 const ViewAllButton = ({ visible, children, onClick }) => {
     if(!visible) return null;

@@ -65,7 +65,8 @@ const CreateOptions = ({ visible, onClose, options }) => {
 
       // console.log("You clicked on: ", parentElement)
       // console.log("It's ID is: ", id)
-      if (parentElement.id === containerID || id === containerID) return;
+      // TODO: parent element without ? gives error, afer clicking on add movie and then clicking out to close it
+      if (parentElement?.id === containerID || id === containerID) return;
 
       if (container.current) {
         if (!container.current.classList.contains("animate-scale"))

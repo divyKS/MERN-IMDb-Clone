@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {AiOutlineClose} from 'react-icons/ai';
 
-const TagsInput = ({ name, onChange }) => {
+const TagsInput = ({ name, onChange, value }) => {
     // user writes some text, presses enter or comma, this runs a method which creates an array for the tags, and use map method to render the containers in front of the input field and use ref hook to bring back focus to input tag
     // we are not going to take input inside input tags, we'll replicate it using a div
     const [tag, setTag] = useState('');
@@ -54,7 +54,11 @@ const TagsInput = ({ name, onChange }) => {
     };
 
     useEffect(()=>{
-        inputRef.current.scrollIntoView();
+        if(value.length) setTags(value);
+    }, [value]);
+
+    useEffect(()=>{
+        inputRef.current?.scrollIntoView(false); // false so that it doesn't scroll us to the end the very first time we open the upload form
         onChange(tags);
     }, [tags]);
 

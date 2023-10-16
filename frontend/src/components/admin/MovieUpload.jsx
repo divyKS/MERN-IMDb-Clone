@@ -4,8 +4,9 @@ import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { NotificationContext } from '../../context/NotificationProvider';
 import { uploadTrailer } from '../../api/movie';
 import MovieForm from './MovieForm';
+import ModelContainer from '../model/ModelContainer';
 
-const MovieUpload = () => {
+const MovieUpload = ({ visible, onClose }) => {
 
 	const useNotification = useContext(NotificationContext);
 	
@@ -58,9 +59,7 @@ const MovieUpload = () => {
 	};
 
 	return (
-		<div className="fixed inset-0 dark:bg-white dark:bg-opacity-50 bg-primary bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
-			<div className="dark:bg-primary bg-white rounded w-[45rem] h-[40rem] overflow-auto p-2 custom-scroll-bar">
-				
+		<ModelContainer visible={visible} onClose={onClose}>		
 				{/* <UploadProgress
 					visible={!videoUploaded && videoSelected}
 					message={getUploadProgressValue()}
@@ -74,8 +73,7 @@ const MovieUpload = () => {
 				/> */}
 
 				<MovieForm/>
-			</div>
-		</div>
+		</ModelContainer>
 	)
 };
 

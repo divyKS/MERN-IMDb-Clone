@@ -33,7 +33,7 @@ const CastForm = ({ onSubmit }) => {
         const target = e.target;
         const { checked, name, value } = target;
         if(name === 'leadActor') return setCastInfo({...castInfo, leadActor: checked});
-        if(name === 'roleAs') return setCastInfo({...castInfo, [name]: value});
+        setCastInfo({...castInfo, [name]: value});
     };
 
     const handleSubmit = (e) => {

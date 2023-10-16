@@ -23,20 +23,23 @@ exports.createActor = async (req, res) => {
       imageFile.path,
       { gravity: "face", height: 500, width: 500, crop: "thumb" },
     );
-    newActor.avatar = { url: secure_url, public_id: public_id };
+    newActor.avatar = { "url": secure_url, "public_id": public_id };
   }
 
   await newActor.save();
 
+  // adding the actor so that we can destructure the error and actor in the frontend
   res.status(201).json({
-    id: newActor._id,
-    name: name,
-    about: about,
-    gender: gender,
-    avatar: {
-      url: newActor.avatar?.url,
-      public_id: newActor.avatar?.public_id,
-    },
+		"actor": {
+			"id": newActor._id,
+			"name": name,
+			"about": about,
+			"gender": gender,
+			"avatar": {
+				"url": newActor.avatar?.url,
+				"public_id": newActor.avatar?.public_id
+			}
+		}
   });
 };
 
