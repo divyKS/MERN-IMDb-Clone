@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { commonInputClasses } from '../utils/theme';
 // import { results } from '../fakeData';
 
-const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultContainerStyle, selectedResultStyle, inputStyle, renderItem=null, onChange=null, onSelect=null, visible}) => {
+const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultContainerStyle, selectedResultStyle, inputStyle, renderItem=null, onChange=null, onSelect=null}) => {
     const [displaySearch, setDisplaySearch] = useState(false);
     const [focusedIndex, setFocusedIndex] = useState(-1);
     const [defaultValue, setDefaultValue] = useState('');
@@ -54,13 +54,15 @@ const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultCo
 
     // since we could not edit the actor writer fields by backspaces etc
     useEffect(()=>{
-        if(value) setDefaultValue(value);
+        // if(value) setDefaultValue(value); this caused the error i wasn't able to set the value as null back in writers thing
+        setDefaultValue(value);
     },[value]);
 
+    // first we were taking in the visible prop from the parent component, but now we are wokring without it
     useEffect(()=>{
-        if(visible) return setDisplaySearch(visible);
+        if(results.length) return setDisplaySearch(true);
         setDisplaySearch(false);
-    }, [visible]);
+    }, [results.length]);
 
 	return(
         <div className='relative outline-none' tabIndex={1} onKeyDown={handleKeyDown} onBlur={handleOnBlur}>

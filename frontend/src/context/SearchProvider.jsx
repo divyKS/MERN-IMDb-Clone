@@ -52,7 +52,7 @@ const SearchProvider = ({ children }) => {
         updaterFunction && updaterFunction([]);
         resetSearch();
       }
-      debounceFunction(method, query, updatedFunction);
+      debounceFunction(method, query, updaterFunction);
     };
 
     const debounceFunction = debounce(search, 300);

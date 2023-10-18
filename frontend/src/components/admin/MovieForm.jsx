@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import TagsInput from '../TagsInput';
-import LiveSearch from '../LiveSearch';
 import { commonInputClasses } from '../../utils/theme';
 // import { results } from '../../fakeData';
 import Submit from '../form/Submit';
@@ -13,8 +12,11 @@ import GenresSelector from '../GenresSelector';
 import GenresModel from '../model/GenresModel';
 import Selector from '../Selector';
 import { languageOptions, statusOptions, typeOptions } from '../../utils/options';
-import { SearchContext } from '../../context/SearchProvider';
-import { searchActor } from '../../api/actor';
+import { Label } from '../Label';
+import DirectorSelector from '../DirectorSelector';
+import WriterSelector from '../WriterSelector';
+import ViewAllButton from '../ViewAllButton';
+import LabelWithBadge from '../LabelWithBadge';
 
 // the trailer is being handeled in the MovieUpload component
 const defaultMovieInfo = {
@@ -38,29 +40,17 @@ const MovieForm = () => {
     const [showCastModel, setShowCastModel] = useState(false);
     const [showGenresModel, setShowGenresModel] = useState(false);
     const [selectedPosterForUI, setSelectedPosterForUI] = useState('');
-    const [writerName, setWriterName] = useState('');
-    const [writersProfile, setWritersProfile] = useState([]);
-    const [directorProfile, setDirectorProfile] = useState([]);
 
-
-    const { title, storyLine, director, writers, cast, tags, genres, type, language, status } = movieInfo;
+    const { title, storyLine, writers, cast, tags, genres, type, language, status } = movieInfo;
 
     const useNotification = useContext(NotificationContext);
-    const useSearch = useContext(SearchContext);
 
     const handleSubmit = (e)=>{
         e.preventDefault();
         console.log("Form Submitted: ", movieInfo);
     };
 
-    const renderItem = (result) => {
-        return (
-            <div className="flex rounded overflow-hidden">
-                <img src={result.avatar.url} alt="" className="w-16 h-16 object-cover" />
-                <p className="dark:text-white font-semibold">{result.name}</p>
-            </div>
-        );
-    };
+    
 
     const updatePosterForUI = (inputFile) => {
         const url = URL.createObjectURL(inputFile);
@@ -84,7 +74,7 @@ const MovieForm = () => {
 
     const updateDirector = (profile) => {
         setMovieInfo({...movieInfo, "director": profile});
-        useSearch.resetSearch(); // so that the results of this field dont go to the writers field
+        // useSearch.resetSearch(); // so that the results of this field dont go to the writers field but now we will do that inside the drector selector method
     };
 
     const updateWriters = (profile) => {
@@ -94,7 +84,7 @@ const MovieForm = () => {
         }
 
         setMovieInfo({...movieInfo, "writers": [...alreadyAddedWriters, profile]});
-        setWriterName(''); // so that the searched name doesn't stay there after selection of a profile
+        // setWriterName(''); // so that the searched name doesn't stay there after selection of a profile, now this need not be handedled here
     };
 
 
@@ -121,18 +111,19 @@ const MovieForm = () => {
         setMovieInfo({...movieInfo, "genres": selectedGenres});
     };
 
-    const handleProfileChange = (e) => {
-        if(e.target.name === 'director'){
-            // console.log(e.target.value);
-            setMovieInfo({...movieInfo, director: {name: e.target.value}});
-            useSearch.handleSearch(searchActor, e.target.value, setDirectorProfile);
+    // not being used now
+    // const handleProfileChange = (e) => {
+    //     if(e.target.name === 'director'){
+    //         // console.log(e.target.value);
+    //         setMovieInfo({...movieInfo, director: {name: e.target.value}});
+    //         useSearch.handleSearch(searchActor, e.target.value, setDirectorProfile);
 
-        }
-        if(e.target.name === 'writers'){
-            setWriterName(e.target.value);
-            useSearch.handleSearch(searchActor, e.target.value, setWritersProfile);
-        }
-    };
+    //     }
+    //     if(e.target.name === 'writers'){
+    //         setWriterName(e.target.value);
+    //         useSearch.handleSearch(searchActor, e.target.value, setWritersProfile);
+    //     }
+    // };
 
 	return (
         <>
@@ -169,22 +160,7 @@ const MovieForm = () => {
                     <TagsInput value={tags} name='tags' onChange={updateTags}/>
                 </div>
 
-                <div>
-                    <Label htmlFor='director'>Director</Label>
-                    <LiveSearch
-                        name='director'
-                        // results={useSearch.results}
-                        results={directorProfile}
-                        placeholder='Search Profile'
-                        renderItem={renderItem}
-                        onSelect={updateDirector}
-                        value={director.name}
-                        onChange={handleProfileChange}
-                        // visible={useSearch.results.length}
-                        visible={directorProfile.length}
-                        // director is coming from that file.js atm, it has the id name and avatar
-                    />
-                </div>
+                <DirectorSelector onSelect={updateDirector}/>
 
                 <div>
                     {/* problem of it showing the same results as typed in the director, and for that we fix our search provider and add reset serach */}
@@ -200,19 +176,7 @@ const MovieForm = () => {
                             onClick={()=>setShowWritersModel(true)}
                         >View All</ViewAllButton>
                     </div>
-                    <LiveSearch
-                        name='writers'
-                        // results={useSearch.results}
-                        results={writersProfile}
-                        placeholder='Search Profile'
-                        renderItem={renderItem}
-                        onSelect={updateWriters}
-                        // onChange={handleChange}
-                        onChange={handleProfileChange}
-                        value={writerName}
-                        // visible={useSearch.results.length}
-                        visible={writersProfile.length}
-                    />
+                    <WriterSelector onSelect={updateWriters}/>
                 </div>
 
                 <div>
@@ -285,46 +249,6 @@ const MovieForm = () => {
 
         </>
 	);
-};
-
-const Label = ({ children, htmlFor }) => {
-    return (
-        <label htmlFor={htmlFor} className="dark:text-dark-subtle text-light-subtle font-semibold">
-            {children}
-        </label>
-    );
-};
-
-const LabelWithBadge = ({ children, htmlFor, badge=0 }) => {
-
-    const renderBadge = () => {
-        if(!badge) return null;
-        return (
-            <span className='dark:bg-dark-subtle bg-light-subtle absolute top-0 right-0 w-5 h-5 rounded-full flex items-center justify-center text-white translate-x-5 -translate-y-1 text-sm'>
-                {(badge <= 9)? badge: '9+'}
-            </span>
-        );
-    };
-
-    return (
-        <div className="relative">
-            <Label htmlFor={htmlFor}>{children}</Label>
-            {renderBadge()}
-        </div>
-    );
-};
-
-const ViewAllButton = ({ visible, children, onClick }) => {
-    if(!visible) return null;
-    return (
-        <button 
-            onClick={onClick}
-            type='button'
-            className='dark:text-white text-primary hover:underline transition'
-        >
-            {children}
-        </button>
-    );
 };
 
 export default MovieForm;

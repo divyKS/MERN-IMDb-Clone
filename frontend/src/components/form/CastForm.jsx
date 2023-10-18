@@ -1,8 +1,11 @@
 import React, { useContext, useState } from 'react';
 import LiveSearch from '../LiveSearch';
 import { commonInputClasses } from '../../utils/theme';
-import { results } from '../../fakeData';
+// import { results } from '../../fakeData'; this was causing that automatic unwanted pop up
 import { NotificationContext } from '../../context/NotificationProvider';
+import { renderItem } from '../../utils/helper';
+import { SearchContext } from '../../context/SearchProvider';
+import { searchActor } from '../../api/actor';
 
 // cast = [{ actor: id, roleAs: "", leadActor: true }]
 const defaultCastInfo = {
@@ -12,21 +15,15 @@ const defaultCastInfo = {
 }
 const CastForm = ({ onSubmit }) => {
     const [castInfo, setCastInfo] = useState({...defaultCastInfo});
+    const [profiles, setProfiles] = useState([]);
+
     const { profile, roleAs, leadActor } = castInfo;
 
     const useNotification = useContext(NotificationContext);
-
-    const renderItem = (result) => {
-        return (
-            <div key={result.id} className="flex rounded overflow-hidden">
-                <img src={result.avatar} alt="" className="w-16 h-16 object-cover" />
-                <p className="dark:text-white font-semibold">{result.name}</p>
-            </div>
-        );
-    };
+    const useSearch = useContext(SearchContext);
 
     const handleProfileSelect = (profile) => {
-        setCastInfo({...castInfo, profile});
+        setCastInfo({...castInfo, profile});        
     };
 
     const handleOnChange = (e) => {
@@ -41,8 +38,18 @@ const CastForm = ({ onSubmit }) => {
         if(!profile.name) return useNotification.updateNotification('error', 'Cast profile missing');
         if(!roleAs.trim()) return useNotification.updateNotification('error', 'Cast role missing');
         onSubmit(castInfo);
-        setCastInfo({...defaultCastInfo});
+        setCastInfo({...defaultCastInfo, profile: {name: ''}}); // profile: {name: ''}} so that after adding the search field become empty
         // console.log(castInfo);
+        useSearch.resetSearch();
+        setProfiles([]);
+    };
+
+    const handleProfileChange = (e) => {
+        const value = e.target.value;
+        const {profile} = castInfo;
+        profile.name = value;
+        setCastInfo({...castInfo, ...profile});
+        useSearch.handleSearch(searchActor, value, setProfiles);
     };
 
 	return (
@@ -60,9 +67,11 @@ const CastForm = ({ onSubmit }) => {
             <LiveSearch 
                 placeholder='Search Profile'
                 value={profile.name}
-                results={results}
+                // results={results}
+                results={profiles}
                 onSelect={handleProfileSelect}
                 renderItem={renderItem}
+                onChange={handleProfileChange}
             />
 
             <span className='dark:text-dark-subtle text-light-subtle font-semibold'>as</span>
