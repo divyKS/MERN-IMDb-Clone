@@ -6,10 +6,9 @@ export const SearchContext = createContext();
 let timeoutId;
 const debounce = (func, delay) => {
   return (...args) => {
-    if(timeoutId) clearTimeout(timeoutId);
+    if (timeoutId) clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
-      // func(); instead of calling like this we call using the apply method
-      func.apply(null, args);
+      func.apply(null, args); // instead of calling func() like this
     }, delay);
   };
 };
@@ -22,30 +21,45 @@ const SearchProvider = ({ children }) => {
 
     const useNotification = useContext(NotificationContext); // we are using the Notification context, so Notification context has to wrap this context
 
-    const search = async (method, query) => { // method query same as the in the handle search, same as that we send from the call fo debounce function
+    const search = async (method, query, updaterFunction) => { // method query same as the in the handle search, same as that we send from the call fo debounce function
         const {error, results} = await method(query);
         if(error) return useNotification.updateNotification('error', error);
 
         if(!results.length) return setResultNotFound(true);
 
         setResults(results);
+        updaterFunction && updaterFunction([...results]); // we want it to be an optional field
     };
 
-    const handleSearch = (method, query) => {
-        setSearching(true);
-        if(!query.trim()){
-            setSearching(false);
-            setResults([]);
-            setResultNotFound(false);
-        }
-        debounceFunction(method, query);
+    const resetSearch = () => {
+      setSearching(false);
+      setResults([]);
+      setResultNotFound(false);
+    };
+
+    // we can't use this method like this now since the same results are popping up in all the live search fields since they have the same state and the same condition to fire up and become visible, so we have to separate their states
+    // const handleSearch = (method, query) => {
+    //     setSearching(true);
+    //     if(!query.trim()){
+    //         resetSearch();
+    //     }
+    //     debounceFunction(method, query);
+    // };
+
+    const handleSearch = (method, query, updaterFunction) => {
+      setSearching(true);
+      if(!query.trim()){
+        updaterFunction && updaterFunction([]);
+        resetSearch();
+      }
+      debounceFunction(method, query, updatedFunction);
     };
 
     const debounceFunction = debounce(search, 300);
 
 
 	return (
-        <SearchContext.Provider value={{searching, resultNotFound, results, handleSearch}}>
+        <SearchContext.Provider value={{searching, resultNotFound, results, handleSearch, resetSearch}}>
             {children}
         </SearchContext.Provider>
     );

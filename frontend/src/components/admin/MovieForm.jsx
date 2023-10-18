@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import TagsInput from '../TagsInput';
 import LiveSearch from '../LiveSearch';
 import { commonInputClasses } from '../../utils/theme';
-import { results } from '../../fakeData';
+// import { results } from '../../fakeData';
 import Submit from '../form/Submit';
 import { NotificationContext } from '../../context/NotificationProvider';
 import WritersModel from '../model/WritersModel';
@@ -13,6 +13,8 @@ import GenresSelector from '../GenresSelector';
 import GenresModel from '../model/GenresModel';
 import Selector from '../Selector';
 import { languageOptions, statusOptions, typeOptions } from '../../utils/options';
+import { SearchContext } from '../../context/SearchProvider';
+import { searchActor } from '../../api/actor';
 
 // the trailer is being handeled in the MovieUpload component
 const defaultMovieInfo = {
@@ -36,10 +38,15 @@ const MovieForm = () => {
     const [showCastModel, setShowCastModel] = useState(false);
     const [showGenresModel, setShowGenresModel] = useState(false);
     const [selectedPosterForUI, setSelectedPosterForUI] = useState('');
+    const [writerName, setWriterName] = useState('');
+    const [writersProfile, setWritersProfile] = useState([]);
+    const [directorProfile, setDirectorProfile] = useState([]);
+
 
     const { title, storyLine, director, writers, cast, tags, genres, type, language, status } = movieInfo;
 
     const useNotification = useContext(NotificationContext);
+    const useSearch = useContext(SearchContext);
 
     const handleSubmit = (e)=>{
         e.preventDefault();
@@ -49,7 +56,7 @@ const MovieForm = () => {
     const renderItem = (result) => {
         return (
             <div className="flex rounded overflow-hidden">
-                <img src={result.avatar} alt="" className="w-16 h-16 object-cover" />
+                <img src={result.avatar.url} alt="" className="w-16 h-16 object-cover" />
                 <p className="dark:text-white font-semibold">{result.name}</p>
             </div>
         );
@@ -67,6 +74,7 @@ const MovieForm = () => {
             updatePosterForUI(posterInput);
             return setMovieInfo({...movieInfo, "poster": posterInput});
         }
+        // if(name === 'writer') return setWriterName(value); now this can't be done here, it will be done in handle profile channge
         setMovieInfo({...movieInfo, [name]: value});
     };
 
@@ -76,6 +84,7 @@ const MovieForm = () => {
 
     const updateDirector = (profile) => {
         setMovieInfo({...movieInfo, "director": profile});
+        useSearch.resetSearch(); // so that the results of this field dont go to the writers field
     };
 
     const updateWriters = (profile) => {
@@ -85,6 +94,7 @@ const MovieForm = () => {
         }
 
         setMovieInfo({...movieInfo, "writers": [...alreadyAddedWriters, profile]});
+        setWriterName(''); // so that the searched name doesn't stay there after selection of a profile
     };
 
 
@@ -109,6 +119,19 @@ const MovieForm = () => {
 
     const updateGenre = (selectedGenres) => {
         setMovieInfo({...movieInfo, "genres": selectedGenres});
+    };
+
+    const handleProfileChange = (e) => {
+        if(e.target.name === 'director'){
+            // console.log(e.target.value);
+            setMovieInfo({...movieInfo, director: {name: e.target.value}});
+            useSearch.handleSearch(searchActor, e.target.value, setDirectorProfile);
+
+        }
+        if(e.target.name === 'writers'){
+            setWriterName(e.target.value);
+            useSearch.handleSearch(searchActor, e.target.value, setWritersProfile);
+        }
     };
 
 	return (
@@ -150,17 +173,21 @@ const MovieForm = () => {
                     <Label htmlFor='director'>Director</Label>
                     <LiveSearch
                         name='director'
-                        // director is coming from that file.js atm, it has the id name and avatar
-                        value={director.name}
-                        results={results}
+                        // results={useSearch.results}
+                        results={directorProfile}
                         placeholder='Search Profile'
                         renderItem={renderItem}
                         onSelect={updateDirector}
+                        value={director.name}
+                        onChange={handleProfileChange}
+                        // visible={useSearch.results.length}
+                        visible={directorProfile.length}
+                        // director is coming from that file.js atm, it has the id name and avatar
                     />
                 </div>
 
-
                 <div>
+                    {/* problem of it showing the same results as typed in the director, and for that we fix our search provider and add reset serach */}
                     <div className="flex justify-between">
                         <LabelWithBadge 
                             badge={writers.length}
@@ -175,10 +202,16 @@ const MovieForm = () => {
                     </div>
                     <LiveSearch
                         name='writers'
-                        results={results}
+                        // results={useSearch.results}
+                        results={writersProfile}
                         placeholder='Search Profile'
                         renderItem={renderItem}
                         onSelect={updateWriters}
+                        // onChange={handleChange}
+                        onChange={handleProfileChange}
+                        value={writerName}
+                        // visible={useSearch.results.length}
+                        visible={writersProfile.length}
                     />
                 </div>
 

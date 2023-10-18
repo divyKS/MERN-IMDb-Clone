@@ -8,7 +8,7 @@ const WritersModel = ({ profiles=[], visible, onClose, onRemoveClick }) => {
             {profiles.map(({id, name, avatar})=>{
                 return (
                     <div key={id} className='flex space-x-3 dark:bg-secondary bg-white drop-shadow-md rounded'>
-                        <img className='w-24 h-24 aspect-square rounded object-cover' src={avatar} alt={name} />
+                        <img className='w-24 h-24 aspect-square rounded object-cover' src={avatar.url} alt={name} />
                         <p className='font-semibold dark:text-white text-primary w-full'>{name}</p>
                         <button onClick={()=>onRemoveClick(id)} className='dark:text-white text-primary hover:opacity-80 transition p-2'>
                             <AiOutlineClose/>

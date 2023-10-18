@@ -59,7 +59,9 @@ const MovieUpload = ({ visible, onClose }) => {
 	};
 
 	return (
-		<ModelContainer visible={visible} onClose={onClose}>		
+		// we dont want to pass onClose here otherwise, when we view the writers the and close from the blurred section the form closes
+		// <ModelContainer visible={visible} onClose={onClose}>		
+		<ModelContainer visible={visible}>		
 				{/* <UploadProgress
 					visible={!videoUploaded && videoSelected}
 					message={getUploadProgressValue()}

@@ -2,13 +2,13 @@ import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { commonInputClasses } from '../utils/theme';
 // import { results } from '../fakeData';
 
-const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultContainerStyle, selectedResultStyle, inputStyle, renderItem=null, onChange=null, onSelect=null}) => {
+const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultContainerStyle, selectedResultStyle, inputStyle, renderItem=null, onChange=null, onSelect=null, visible}) => {
     const [displaySearch, setDisplaySearch] = useState(false);
     const [focusedIndex, setFocusedIndex] = useState(-1);
     const [defaultValue, setDefaultValue] = useState('');
 
     const handleOnFocus = () => {
-        if(results.length) setDisplaySearch(true);
+        if(results.length) setDisplaySearch(true); // we need to do whenever the results.length is changing
     };
 
     const handleOnBlur = () => {
@@ -56,6 +56,11 @@ const LiveSearch = ({ name, value = "", placeholder = "", results = [], resultCo
     useEffect(()=>{
         if(value) setDefaultValue(value);
     },[value]);
+
+    useEffect(()=>{
+        if(visible) return setDisplaySearch(visible);
+        setDisplaySearch(false);
+    }, [visible]);
 
 	return(
         <div className='relative outline-none' tabIndex={1} onKeyDown={handleKeyDown} onBlur={handleOnBlur}>
@@ -141,7 +146,8 @@ const ResultCard = forwardRef((props, ref)=>{
 
     return (
         <div onMouseDown={onMouseDown} ref={ref} className={getClasses()}>
-            {renderItem(item)}                    
+            {renderItem(item)}
+            {/* item.avatar and item.name getting rendered , so i added item.avatar.url in renderItem function*/}
         </div>
     );
 });

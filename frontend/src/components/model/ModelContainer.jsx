@@ -3,7 +3,7 @@ import React from 'react';
 const ModelContainer = ({ visible, children, onClose, ignoreContainer }) => {
     
     const handleClick = (e) => {
-        if(e.target.id === 'model-container') onClose();
+        if(e.target.id === 'model-container') onClose && onClose();
     };
     
     const renderChildren = () => {
