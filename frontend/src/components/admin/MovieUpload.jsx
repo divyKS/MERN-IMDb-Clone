@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { FileUploader } from 'react-drag-drop-files';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { NotificationContext } from '../../context/NotificationProvider';
-import { uploadTrailer } from '../../api/movie';
+import { uploadMovie, uploadTrailer } from '../../api/movie';
 import MovieForm from './MovieForm';
 import ModelContainer from '../model/ModelContainer';
 
@@ -13,25 +13,9 @@ const MovieUpload = ({ visible, onClose }) => {
 	const [videoSelected, setVideoSelected] = useState(false);
 	const [videoUploaded, setVideoUploaded] = useState(false);
 	const [uploadProgress, setUploadProgress] = useState(0);
-	const [videoInfo, setVideoInfo] = useState({})
-	const [movieInfo, setMovieInfo] = useState({
-		title: '',
-		storyLine: '',
-		tags: [],
-		cast: [],
-		director: {},
-		writers: [],
-		releaseDate: '',
-		poster: null,
-		genres: [],
-		type: '',
-		language: '',
-		status: '',
-		trailer: {
-			url: '',
-			public_id: '',
-		},
-	});
+	const [videoInfo, setVideoInfo] = useState({});
+	const [busy, setBusy] =useState(false);
+
 	
 	const handleUploadTrailer = async (data) => {
 		const { error, url, public_id } = await uploadTrailer(data, setUploadProgress);
@@ -58,23 +42,40 @@ const MovieUpload = ({ visible, onClose }) => {
 		}
 	};
 
+	const handleSubmit = async (movieInfoFormData) => {
+		console.log("Movie has reached the handle submit function|MovieUpload.jsx -> ", movieInfoFormData);
+
+		if(!videoInfo.url || !videoInfo.public_id) return useNotification.updateNotification('error', 'Movie trailer is not uploaded properly/missing');
+
+		movieInfoFormData.append('trailer', JSON.stringify(videoInfo));
+
+		setBusy(true);
+		const res = await uploadMovie(movieInfoFormData);
+		setBusy(false);
+		console.log('Response from uploading movie -> ', res);
+		onClose();
+	};
+
 	return (
 		// we dont want to pass onClose here otherwise, when we view the writers the and close from the blurred section the form closes
 		// <ModelContainer visible={visible} onClose={onClose}>		
 		<ModelContainer visible={visible}>		
-				{/* <UploadProgress
+			
+			<div className='mb-5'>
+				<UploadProgress
 					visible={!videoUploaded && videoSelected}
 					message={getUploadProgressValue()}
 					width={uploadProgress}
 				/>
+			</div>
 
-				<TrailerSelector 
-					visible={!videoSelected} 
-					onTypeError={handleTypeError} 
-					handleChange={handleChange}
-				/> */}
+			{!videoSelected ? (<TrailerSelector 
+				visible={!videoSelected} 
+				onTypeError={handleTypeError} 
+				handleChange={handleChange}
+			/>):(
 
-				<MovieForm/>
+			<MovieForm busy={busy} onSubmit={!busy ? handleSubmit : null}/>)}
 		</ModelContainer>
 	)
 };

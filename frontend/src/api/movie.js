@@ -19,3 +19,19 @@ export const uploadTrailer = async (formData, onUploadProgress) => {
 		return { error: error.message || error };
 	}
 };
+
+export const uploadMovie = async (formData) => {
+	const token = localStorage.getItem('auth-token');
+	try {
+		const { data } = await client.post("/movie/create", formData,{ 
+		  headers: {
+			Authorization: "Bearer " + token,
+			'Content-type':  'multipart/form-data',
+		  },
+		});
+		return data;
+	  }catch (error) {
+		if (error.response?.data) return error.response.data;
+		return { error: error.message || error };
+	}
+};

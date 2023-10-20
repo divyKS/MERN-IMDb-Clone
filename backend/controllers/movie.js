@@ -57,28 +57,25 @@ exports.createMovie = async (req, res) => {
   });
 
   if (director) {
-    if (isValidObjectId(director))
-      return res.status(401).json({ error: "invalid director id" });
+    if (!isValidObjectId(director)) return res.status(401).json({ error: "invalid director id" });
     newMovie.director = director;
   }
-
+  
   if (writers) {
     let index = 0;
     for (let writerId of writers) {
-      if (isValidObjectId(writerId))
-        return res
-          .status(401)
-          .json({ error: "invalid writer id at index ", index });
+      if (!isValidObjectId(writerId)) return res.status(401).json({ "error": "Invalid writer id at index=" + index + ". The invalid writer id=" + writerId });
       index++;
     }
     newMovie.writers = writers;
   }
 
-  if (!file) return res.status(401).json({ error: "poster is missing 1" });
+  // if (!file) return res.status(401).json({ error: "poster is missing 1" }); but we want to keep the poster as an optional field
 
-  // uploading poster + with mutiple dimensions so we can use smaller images on smaller devices
-  // its response.responsive_breakpoints[0].breakpoints has objects of differnt size of the images
-  const { secure_url, public_id, responsive_breakpoints } =
+  if(file){
+    // uploading poster + with mutiple dimensions so we can use smaller images on smaller devices
+    // its response.responsive_breakpoints[0].breakpoints has objects of differnt size of the images
+    const { secure_url, public_id, responsive_breakpoints } =
     await cloudinary.v2.uploader.upload(file.path, {
       transformation: {
         width: 1280,
@@ -91,26 +88,24 @@ exports.createMovie = async (req, res) => {
       },
     });
 
-  // the poster that we get from the frontend in req.file, only has a single image, we convert it into 1280x720 size and create 2 more copies of it in smaller sizes and then store that in our DB
-  const finalPoster = { url: secure_url, public_id, responsive: [] };
+    // the poster that we get from the frontend in req.file, only has a single image, we convert it into 1280x720 size and create 2 more copies of it in smaller sizes and then store that in our DB
+    const finalPoster = { url: secure_url, public_id, responsive: [] };
 
-  const { breakpoints } = responsive_breakpoints[0];
+    const { breakpoints } = responsive_breakpoints[0];
 
-  if (breakpoints.length) {
-    for (let imgObj of breakpoints) {
-      const breakpointSecureURL = imgObj.secure_url;
-      finalPoster.responsive.push(breakpointSecureURL);
+    if (breakpoints.length) {
+      for (let imgObj of breakpoints) {
+        const breakpointSecureURL = imgObj.secure_url;
+        finalPoster.responsive.push(breakpointSecureURL);
+      }
     }
-  }
 
-  newMovie.poster = finalPoster;
+    newMovie.poster = finalPoster;
+  }
 
   await newMovie.save();
 
-  res.status(201).json({
-    id: newMovie._id,
-    title,
-  });
+  res.status(201).json({"id": newMovie._id,"title": title});
 };
 
 exports.updateMovieWithoutPoster = async (req, res) => {

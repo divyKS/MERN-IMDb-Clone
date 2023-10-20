@@ -17,6 +17,7 @@ import DirectorSelector from '../DirectorSelector';
 import WriterSelector from '../WriterSelector';
 import ViewAllButton from '../ViewAllButton';
 import LabelWithBadge from '../LabelWithBadge';
+import { validateMovie } from '../../utils/validator';
 
 // the trailer is being handeled in the MovieUpload component
 const defaultMovieInfo = {
@@ -34,7 +35,7 @@ const defaultMovieInfo = {
     status: '',
 }
 
-const MovieForm = () => {
+const MovieForm = ({ onSubmit, busy }) => {
     const [movieInfo, setMovieInfo] = useState({...defaultMovieInfo});
     const [showWritersModel, setShowWritersModel] = useState(false);
     const [showCastModel, setShowCastModel] = useState(false);
@@ -47,7 +48,62 @@ const MovieForm = () => {
 
     const handleSubmit = (e)=>{
         e.preventDefault();
-        console.log("Form Submitted: ", movieInfo);
+        
+        const {error} = validateMovie(movieInfo);
+        if(error) return useNotification.updateNotification("error", error);
+
+
+        console.log("Starting to submit the form with this info: ", movieInfo);
+
+
+        const finalMovieInfo = {...movieInfo};
+        const formData = new FormData();
+
+        finalMovieInfo.tags = JSON.stringify(movieInfo.tags);
+        finalMovieInfo.genres = JSON.stringify(movieInfo.genres);
+
+        // cast doesnot take info like this in the backend
+        // const finalCast = movieInfo.cast.map((c)=>c.id);
+        // finalMovieInfo.cast = JSON.stringify(finalCast);
+        const finalCast = cast.map((c) => ({
+            actor: c.profile.id,
+            roleAs: c.roleAs,
+            leadActor: c.leadActor,
+          }));
+        finalMovieInfo.cast = JSON.stringify(finalCast);
+
+        if(movieInfo.writers.length){
+            const finalWriter = movieInfo.writers.map((person)=>person.id);
+            finalMovieInfo.writers = JSON.stringify(finalWriter);
+        }
+
+        if(movieInfo.director.id) finalMovieInfo.director = movieInfo.director.id;
+
+        if(movieInfo.poster) finalMovieInfo.poster = movieInfo.poster;
+
+        for(let key in finalMovieInfo) formData.append(key, finalMovieInfo[key]);
+
+        onSubmit(formData);
+
+        // LONGER WAY ->
+        // trailer, cast, genres, tags, writer are parsed in the backend, so while sending them we will have to stringify them, we dont have trailer here so we wont handle that here
+        // const formData = new FormData();
+        // formData.append('tags', JSON.stringify(movieInfo.tags));
+        // formData.append('genres', JSON.stringify(movieInfo.genres));
+
+        // const finalCast = movieInfo.cast.map((person)=>person.id); // just return the id as cast, writer jsut store the id of the actors
+        // formData.append('cast', JSON.stringify(finalCast));
+
+        // if(movieInfo.writers.length){
+        //     const finalWriter = movieInfo.writers.map((person)=>person.id);
+        //     formData.append('writers', JSON.stringify(finalWriter));
+        // }
+
+        // if(movieInfo.director.id){
+        //     formData.append('director', movieInfo.director.id);
+        // }
+
+        // onSubmit(movieInfo);
     };
 
     
@@ -203,7 +259,7 @@ const MovieForm = () => {
                     onChange={handleChange}
                     name='releaseDate'
                 />
-                <Submit value='Upload Movie' onClick={handleSubmit} type='button'/>
+                <Submit busy={busy} value='Upload Movie' onClick={handleSubmit} type='button'/>
             </div>
 
 			<div className="w-[30%] space-y-5">
