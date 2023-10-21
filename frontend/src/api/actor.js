@@ -31,3 +31,18 @@ export const searchActor = async (query) => {
 		return { error: error.message || error };
 	}
 };
+
+export const getActors = async (pageNo, limit) => {
+	const token = localStorage.getItem('auth-token');
+	try {
+		const { data } = await client.get(`/actor/actors?pageNo=${pageNo}&limit=${limit}`, {
+			headers: {
+				Authorization: 'Bearer ' + token,
+			}
+		});
+		return data;
+	} catch (error) {
+		if (error.response?.data) return error.response.data;
+		return { error: error.message || error };
+	}
+};

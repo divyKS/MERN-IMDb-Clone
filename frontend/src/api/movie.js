@@ -35,3 +35,18 @@ export const uploadMovie = async (formData) => {
 		return { error: error.message || error };
 	}
 };
+
+export const getMovies = async (pageNo, limit) => {
+	const token = localStorage.getItem('auth-token');
+	try {
+		const { data } = await client.get(`/movie/movies?pageNo=${pageNo}&limit=${limit}`, { 
+		  headers: {
+			Authorization: "Bearer " + token,
+		  },
+		});
+		return data;
+	  }catch (error) {
+		if (error.response?.data) return error.response.data;
+		return { error: error.message || error };
+	}
+};
