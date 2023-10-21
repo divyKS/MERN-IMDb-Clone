@@ -16,7 +16,7 @@ const AdminNavigator = () => {
 		<>
 			<div className="flex dark:bg-primary bg-white">
 				<Navbar />
-				<div className="flex-1 p-2 max-w-screen-xl">
+				<div className="flex-1 max-w-screen-xl">
 					<Header
 						onAddMovieClick={() =>
 							setShowMovieUploadModel(true)

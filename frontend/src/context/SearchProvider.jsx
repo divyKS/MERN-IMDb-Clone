@@ -25,8 +25,13 @@ const SearchProvider = ({ children }) => {
         const {error, results} = await method(query);
         if(error) return useNotification.updateNotification('error', error);
 
-        if(!results.length) return setResultNotFound(true);
+        if(!results.length) {
+          setResults([]);
+          updaterFunction && updaterFunction([]);
+          return setResultNotFound(true);
+        }
 
+        setResultNotFound(false);
         setResults(results);
         updaterFunction && updaterFunction([...results]); // we want it to be an optional field
     };
@@ -50,7 +55,7 @@ const SearchProvider = ({ children }) => {
       setSearching(true);
       if(!query.trim()){
         updaterFunction && updaterFunction([]);
-        resetSearch();
+        return resetSearch();// if we don't return here then the request still goes to our backend
       }
       debounceFunction(method, query, updaterFunction);
     };

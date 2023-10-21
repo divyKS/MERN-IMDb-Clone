@@ -1,6 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { BsPencilSquare, BsTrash3 } from 'react-icons/bs';
-import { getActors } from '../../api/actor';
+import { deleteActor, getActors, searchActor } from '../../api/actor';
+import UpdateActor from '../model/UpdateActor';
+import AppSearchForm from '../AppSearchForm';
+import { SearchContext } from '../../context/SearchProvider';
+import NotFoundText from '../NotFoundText';
+import ConfirmModel from '../model/ConfirmModel';
 
 let currentPageNo = 0;
 const limit = 4;
@@ -9,6 +14,13 @@ const Actors = () => {
 
 	const [actors, setActors] = useState([]);
 	const [reachedEnd, setReachedEnd] = useState(false);
+	const [showUpdateModel, setShowUpdateModel] = useState(false);
+	const [selectedProfile, setSelectedProfile] = useState(null);
+	const [results, setResults] = useState([]);
+	const [showConfirmModel, setShowConfirmModel] = useState(false);
+	const [busy, setBusy] = useState(false);
+
+	const useSearch = useContext(SearchContext);
 
 	const fetchActors = async (pageNo) => {
 		const {profiles, error} = await getActors(pageNo, limit);
@@ -20,11 +32,7 @@ const Actors = () => {
 		}; 
 		setActors([...profiles]);
 	};
-
-	useEffect(()=>{
-		fetchActors(currentPageNo);
-	}, []);
-
+	
 	const handleOnNextClick = () => {
 		if(reachedEnd) return ;
 		currentPageNo += 1;
@@ -38,35 +46,123 @@ const Actors = () => {
 		fetchActors(currentPageNo);
 	};
 
-	return (
-		<div className="p-5">
-			<div className="grid grid-cols-4 gap-5">
-				{actors.map((actor)=>{
-					return <ActorProfile profile={actor} key={actor.id}/>
-				})}
-			</div>
-			<div className="flex justify-end items-center space-x-5 mt-5">
-				<button
-					type='button'
-					className='text-primary dark:text-white hover:underline'
-					onClick={handleOnPrevClick}
-				>
-					Prev
-				</button>
-				<button
-					type='button'
-					className='text-primary dark:text-white hover:underline'
-					onClick={handleOnNextClick}
-				>
-					Next
-				</button>
-			</div>
-		</div>
+	const handleOnEditClick = (profile) => {
+		console.log({profile});
+		setShowUpdateModel(true);
+		setSelectedProfile(profile);
+	};
+	
+	const handleOnActorUpdate = (profile) => { 
+		// this be the list of the actors with the updated actor updated, for this page
+		const updatedActors = actors.map((actor)=>{
+			if(profile.id === actor.id){
+				return profile;
+			}
+			return actor;
+		});
 
-  	);
+		setActors([...updatedActors]);
+	};
+
+	const handleOnSearchSubmit = (value) => {
+		console.log({value});
+		useSearch.handleSearch(searchActor, value, setResults);
+
+	};
+	
+	const handleSearchFormReset = () => {
+		useSearch.resetSearch();
+		setResults([]);
+		
+	};
+
+	const handleOnDeleteClick = (profile) => {
+		setShowConfirmModel(true);
+		setSelectedProfile(profile);//so that we can use it in inside handleOnDeleteConfirm
+		console.log({profile})	
+	};
+
+	const handleOnDeleteConfirm = async () => {
+		setBusy(true);
+		const {error, message} = await deleteActor(selectedProfile.id);
+		setBusy(false);
+		if(error) return console.log('Your actor was not deleted: ', error);
+		console.log('Your actor has been deleted successfully: ', message);
+		setShowConfirmModel(false);
+		fetchActors(currentPageNo);// because there will a empty space, its best to re render all 
+	};
+
+	useEffect(()=>{
+		fetchActors(currentPageNo);
+	}, []);
+
+	return (
+		<>
+			<div className="p-5">
+				<div className="flex justify-end mb-5">
+					<AppSearchForm
+						placeholder="Search Actor..."
+						onSubmit={handleOnSearchSubmit}
+						showResetIcon={results.length || useSearch.resultNotFound}
+						onReset={handleSearchFormReset}
+					/>
+				</div>
+				{/* we have this state in useSeach will stores if we found something in our db or not */}
+				
+				<NotFoundText text="Actor with given name doesn't exist in our database." visible={useSearch.resultNotFound}/>:
+				<div className="grid grid-cols-4 gap-5">
+					{results.length || useSearch.resultNotFound
+						? results.map((result) => {
+								return (
+									<ActorProfile profile={result} key={result.id} onEditClick={() => handleOnEditClick(result)} onDeleteClick={() => handleOnDeleteClick(result)}/>
+								);
+						  })
+						: actors.map((actor) => {
+								return (
+									<ActorProfile profile={actor} key={actor.id} onEditClick={() => handleOnEditClick(actor)} onDeleteClick={() => handleOnDeleteClick(actor)}/>
+								);
+						  })}
+				</div>
+
+				{!results.length && !useSearch.resultNotFound? <div className="flex justify-end items-center space-x-5 mt-5">
+					<button
+						type="button"
+						className="text-primary dark:text-white hover:underline"
+						onClick={handleOnPrevClick}
+					>
+						Prev
+					</button>
+					<button
+						type="button"
+						className="text-primary dark:text-white hover:underline"
+						onClick={handleOnNextClick}
+					>
+						Next
+					</button>
+				</div>:null}
+			</div>
+			
+			<ConfirmModel
+				visible={showConfirmModel}
+				onClose={()=>!busy && setShowConfirmModel(false)}
+				busy={busy}
+				onConfirm={handleOnDeleteConfirm}
+				onCancel={()=>setShowConfirmModel(false)}
+				title='Are you sure?'
+				subtitle='Please wait, the deletion is under progress.'
+			/>
+
+			<UpdateActor
+				visible={showUpdateModel}
+				onClose={() => setShowUpdateModel(false)}
+				initialState={selectedProfile}
+				onSuccess={handleOnActorUpdate}
+			/>
+		</>
+	);
 };
 
-const ActorProfile = ({ profile }) => {
+const ActorProfile = ({ profile, onEditClick, onDeleteClick }) => {
 	
 	const [showOptions, setShowOptions] = useState(false);
 
@@ -100,7 +196,7 @@ const ActorProfile = ({ profile }) => {
 						{about.substring(0, 50)}
 					</p>
 				</div>
-				<Options visible={showOptions} />
+				<Options visible={showOptions} onEditClick={onEditClick} onDeleteClick={onDeleteClick} />
 			</div>
 		</div>
 	);

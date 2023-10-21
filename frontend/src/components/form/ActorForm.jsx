@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { commonInputClasses } from '../../utils/theme';
 import PosterSelector from '../PosterSelector';
 import Selector from '../Selector';
@@ -27,7 +27,7 @@ const validateActor = ({ avatar, name, gender, about }) => {
 };
 
 
-const ActorForm = ({ title, btnTitle, busy, onSubmit }) => {
+const ActorForm = ({ title, btnTitle, busy, onSubmit, initialState }) => {
     const [actorInfo, setActorInfo] = useState({...defaultActorInfo});
     const [selectedAvatarForUI, setSelectedAvatarForUI] = useState('');
 
@@ -66,6 +66,13 @@ const ActorForm = ({ title, btnTitle, busy, onSubmit }) => {
         onSubmit(formData);
 
     };
+
+    useEffect(()=>{
+        if(initialState){
+            setActorInfo({...initialState, avatar: null});// the avatar is a file not a url, and to display that we are using selectedAvatarForUI
+            setSelectedAvatarForUI(initialState.avatar.url);
+        }
+    }, [initialState]);
 
 	return (
         <form onSubmit={handleSubmit} className="dark:bg-primary bg-white p-3 w-[35rem] rounded">

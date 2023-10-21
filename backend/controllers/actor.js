@@ -97,14 +97,16 @@ exports.updateActor = async (req, res) => {
   await actorToBeUpdated.save();
 
   res.status(201).json({
-    id: actorToBeUpdated._id,
-    name: updatedName,
-    about: updatedAbout,
-    gender: updatedGender,
-    avatar: {
-      url: actorToBeUpdated.avatar?.url,
-      public_id: actorToBeUpdated.avatar?.public_id,
-    },
+		"actor": {
+			"id": actorToBeUpdated._id,
+			"name": updatedName,
+			"about": updatedAbout,
+			"gender": updatedGender,
+			"avatar": {
+				"url": actorToBeUpdated.avatar?.url,
+				"public_id": actorToBeUpdated.avatar?.public_id,
+			},
+		},
   });
 };
 
@@ -150,7 +152,11 @@ exports.removeActor = async (req, res) => {
 exports.searchActor = async (req, res) => {
   // req.query === key value pair object of the query parameters
   const { query } = req;
-  const result = await Actor.find({ $text: { $search: `"${query.name}"` } });
+  // const result = await Actor.find({ $text: { $search: `"${query.name}"` } }); we were using this to serach for exact matches and we did index the name in the actor model
+
+  if(!query.name.trim()) return res.status(401).json({'error': 'You need to enter something before searching.'});
+
+  const result = await Actor.find({name: {$regex: query.name, $options: 'i'}});
 
   // each object in result array has fields which we don't require: createdAt, updatedAt, __v
   const formattedResultArray = result.map((actor) => formatActor(actor));
