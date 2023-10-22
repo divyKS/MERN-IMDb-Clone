@@ -12,7 +12,7 @@ const ConfirmModel = ({ visible, busy, onConfirm, onCancel, title, subtitle, onC
                 
                 <div className="flex items-center space-x-3 mt-3">                    
                     {busy ? (
-                        <p className='flex items-center space-x-2'>
+                        <p className='flex items-center space-x-2 text-primary dark:text-white'>
                             <ImSpinner3 className='animate-spin text-2xl'/>
                             <span></span>
                         </p>

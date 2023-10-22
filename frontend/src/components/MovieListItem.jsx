@@ -35,9 +35,9 @@ const MovieListItem = ({ movie, onDeleteClick, onEditClick, onOpenClick }) => {
     
                         <td>
                             <div className='flex items-center space-x-3 text-primary dark:text-white text-lg'>
-                                <button className='' type='button' onClick={onEditClick}><BsPencilSquare/></button>
-                                <button className='' type='button' onClick={onOpenClick}><BsBoxArrowUpRight/></button>
-                                <button className='' type='button' onClick={onDeleteClick}><BsTrash3/></button>
+                                <button type='button' onClick={onEditClick}><BsPencilSquare/></button>
+                                <button type='button' onClick={onOpenClick}><BsBoxArrowUpRight/></button>
+                                <button type='button' onClick={onDeleteClick}><BsTrash3/></button>
                             </div>
                         </td>
     

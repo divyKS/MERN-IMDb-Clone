@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import TagsInput from '../TagsInput';
 import { commonInputClasses } from '../../utils/theme';
 // import { results } from '../../fakeData';
@@ -35,7 +35,7 @@ const defaultMovieInfo = {
     status: '',
 }
 
-const MovieForm = ({ onSubmit, busy }) => {
+const MovieForm = ({ onSubmit, busy, initialState, btnTitle }) => {
     const [movieInfo, setMovieInfo] = useState({...defaultMovieInfo});
     const [showWritersModel, setShowWritersModel] = useState(false);
     const [showCastModel, setShowCastModel] = useState(false);
@@ -105,8 +105,6 @@ const MovieForm = ({ onSubmit, busy }) => {
 
         // onSubmit(movieInfo);
     };
-
-    
 
     const updatePosterForUI = (inputFile) => {
         const url = URL.createObjectURL(inputFile);
@@ -180,6 +178,15 @@ const MovieForm = ({ onSubmit, busy }) => {
     //         useSearch.handleSearch(searchActor, e.target.value, setWritersProfile);
     //     }
     // };
+
+    useEffect(()=>{
+        if(initialState){
+            setMovieInfo({...initialState,
+                "releaseDate":initialState.releaseDate.split('T')[0],
+                "poster": null});
+            setSelectedPosterForUI(initialState.poster);
+        }
+    }, [initialState]);
 
 	return (
         <>
@@ -258,8 +265,11 @@ const MovieForm = ({ onSubmit, busy }) => {
                     className={commonInputClasses + ' border-2 rounded p-1 w-auto'}
                     onChange={handleChange}
                     name='releaseDate'
+                    value={movieInfo.releaseDate}
                 />
-                <Submit busy={busy} value='Upload Movie' onClick={handleSubmit} type='button'/>
+
+                <Submit busy={busy} value={btnTitle? btnTitle : 'Upload Movie'} onClick={handleSubmit} type='button'/>
+
             </div>
 
 			<div className="w-[30%] space-y-5">

@@ -15,7 +15,7 @@ const CastModel = ({ cast=[], visible, onClose, onRemoveClick }) => {
 
                     <div key={id} className='flex space-x-3 dark:bg-secondary bg-white drop-shadow-md rounded'>
 
-                        <img className='w-24 h-24 aspect-square rounded object-cover' src={avatar} alt={name} />
+                        <img className='w-24 h-24 aspect-square rounded object-cover' src={avatar.url} alt={name} />
 
 
                         <div className="w-full flex flex-col justify-between py-1">

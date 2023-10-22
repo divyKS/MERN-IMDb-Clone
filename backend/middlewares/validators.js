@@ -84,26 +84,7 @@ exports.validateMovie = [
           );
       }
       return true;
-    }),
-  check("trailer")
-    .isObject()
-    .withMessage("Trailer has to be an object")
-    .custom(({ url, public_id }) => {
-      try {
-        const result = new URL(url);
-        if (!result.protocol.includes("http"))
-          throw Error(
-            "trailer url is not a valid url, it does not include http",
-          );
-        const publicIdFromURL = url.split("/").pop().split(".")[0];
-        if (publicIdFromURL !== public_id)
-          throw Error("Trailer public_id is invalid");
-      } catch (error) {
-        console.log(error);
-        throw Error("trailer url is not a valid url");
-      }
-      return true;
-    }),
+    })
   // check('poster').custom((value, {req})=>{
   //     // we can't do this inside of multer validator imageFileFilter because they would simply not run if no file was attached
   //     if(!req.file) throw Error('Poster file is missing');
@@ -111,6 +92,27 @@ exports.validateMovie = [
   // })
   // director and writers are optional fields so their validation can be handeled in the controller
 ];
+
+exports.validateTrailer = check("trailer")
+.isObject()
+.withMessage("Trailer has to be an object")
+.custom(({ url, public_id }) => {
+  try {
+    const result = new URL(url);
+    if (!result.protocol.includes("http"))
+      throw Error(
+        "trailer url is not a valid url, it does not include http",
+      );
+    const publicIdFromURL = url.split("/").pop().split(".")[0];
+    if (publicIdFromURL !== public_id)
+      throw Error("Trailer public_id is invalid");
+  } catch (error) {
+    console.log(error);
+    throw Error("trailer url is not a valid url");
+  }
+  return true;
+}),
+
 
 // middleware to print the 'withMessage' from above
 exports.validate = (req, res, next) => {
