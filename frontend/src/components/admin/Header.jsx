@@ -3,6 +3,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { BsFillSunFill } from "react-icons/bs";
 import { ThemeContext } from "../../context/ThemeProvider";
 import AppSearchForm from "../AppSearchForm";
+import { useNavigate } from "react-router-dom";
 
 const Header = ({ onAddActorClick, onAddMovieClick }) => {
   const [showOptions, setShowOptions] = useState(false);
@@ -18,10 +19,18 @@ const Header = ({ onAddActorClick, onAddMovieClick }) => {
     },
   ];
 
+  const navigate = useNavigate();
+
+  const handleSearchSubmit = (query) => {
+    if(!query.trim()) return;
+    console.log({query});
+    navigate('/search?title='+query);
+  };
+
   return (
     <div className="flex items-center justify-between relative p-5">
       
-      <AppSearchForm placeholder='Search Movie...'/>
+      <AppSearchForm onSubmit={handleSearchSubmit} placeholder='Search Movie...'/>
 
       <div className="flex items-center space-x-3">
         <button

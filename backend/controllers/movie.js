@@ -148,7 +148,7 @@ exports.updateMovieWithoutPoster = async (req, res) => {
 
   // director and writers were optional fields
   if (director) {
-    if (isValidObjectId(director))
+    if (!isValidObjectId(director))
       return res.status(401).json({ error: "invalid director id" });
     movieToUpdate.director = director;
   }
@@ -156,7 +156,7 @@ exports.updateMovieWithoutPoster = async (req, res) => {
   if (writers) {
     let index = 0;
     for (let writerId of writers) {
-      if (isValidObjectId(writerId))
+      if (!isValidObjectId(writerId))
         return res
           .status(401)
           .json({ error: "invalid writer id at index ", index });
@@ -377,4 +377,19 @@ exports.getMovieForUpdate = async (req, res) => {
       })
     } 
   });
+};
+
+exports.searchMovies = async (req, res) =>{
+  const {title} = req.query;
+  if(!title.trim()) return res.json({'error': 'cant search for an empty movie'});
+  const movies = await Movie.find({title: {$regex: title, $options: 'i'}});
+  res.json({results: movies.map(m => {
+    return {
+      "id":m._id,
+      "title":m.title,
+      "poster":m.poster?.url,
+      "genres":m.genres,
+      "status":m.status
+    }
+  })})
 };
