@@ -113,7 +113,6 @@ exports.validateTrailer = check("trailer")
   return true;
 }),
 
-
 // middleware to print the 'withMessage' from above
 exports.validate = (req, res, next) => {
   const error = validationResult(req).array();
@@ -124,3 +123,5 @@ exports.validate = (req, res, next) => {
   // console.log(error);
   next();
 };
+
+exports.validateRatings = check('rating', 'Rating must be a number 1 and 10').isFloat({min:1, max:10});
