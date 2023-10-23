@@ -1,67 +1,73 @@
 import React, { useContext, useEffect, useState } from 'react';
 import MovieListItem from './MovieListItem';
-import { deleteMovie, getMovieForUpdate, getMovies } from '../api/movie';
-import ConfirmModel from './model/ConfirmModel';
-import UpdateMovie from './model/UpdateMovie';
-import { NotificationContext } from '../context/NotificationProvider';
+// import { deleteMovie, getMovieForUpdate, getMovies } from '../api/movie';
+// import ConfirmModel from './model/ConfirmModel';
+// import UpdateMovie from './model/UpdateMovie';
+// import { NotificationContext } from '../context/NotificationProvider';
+import { MovieContext } from '../context/MoviesProvider';
 
 const pageNo = 0;
 const limit = 5;
 
 const LatestUploads = () => {
-    const [movies, setMovies] = useState([]);
-    const [busy, setBusy] = useState(false);
-    const [showConfirmModel, setShowConfirmModel] = useState(false);
-    const [showUpdateModel, setShowUpdateModel] = useState(false);
-    const [selectedMovie, setSelectedMovie] = useState(null);
+    // const [movies, setMovies] = useState([]);
+    // const [busy, setBusy] = useState(false);
+    // const [showConfirmModel, setShowConfirmModel] = useState(false);
+    // const [showUpdateModel, setShowUpdateModel] = useState(false);
+    // const [selectedMovie, setSelectedMovie] = useState(null);
     
-    const useNotification = useContext(NotificationContext);
+    // const useNotification = useContext(NotificationContext);
 
-    const fetchLatestUploads = async () => {
-        const { error, movies } = await getMovies(pageNo, limit);
-        if (error) return useNotification.updateNotification('error', error);
+    const useMovie = useContext(MovieContext);
+    const { latestsUploads, fetchLatestUploads } = useMovie;
 
-        setMovies([...movies]);
-    };
+    // const fetchLatestUploads = async () => {
+    //     const { error, movies } = await getMovies(pageNo, limit);
+    //     if (error) return useNotification.updateNotification('error', error);
 
-    const handleOnDeleteClick = (movie) => {
-        setSelectedMovie(movie);
-        setShowConfirmModel(true);
-    };
+    //     setMovies([...movies]);
+    // };
 
-    const handleOnEditClick = async ({ id }) => {
-        const { movie, error } = await getMovieForUpdate(id);
-        setShowUpdateModel(true);
+    // const handleOnDeleteClick = (movie) => {
+    //     setSelectedMovie(movie);
+    //     setShowConfirmModel(true);
+    // };
 
-        if (error) return useNotification.updateNotification("error", error);
+    // const handleOnEditClick = async ({ id }) => {
+    //     const { movie, error } = await getMovieForUpdate(id);
+    //     setShowUpdateModel(true);
 
-        setSelectedMovie(movie);
-    };
+    //     if (error) return useNotification.updateNotification("error", error);
 
-    const handleOnDeleteConfirm = async () => {
-        setBusy(true);
-        const { error, message } = await deleteMovie(selectedMovie.id);
-        setBusy(false);
+    //     setSelectedMovie(movie);
+    // };
 
-        if (error) return useNotification.updateNotification("error", error);
+    // const handleOnDeleteConfirm = async () => {
+    //     setBusy(true);
+    //     const { error, message } = await deleteMovie(selectedMovie.id);
+    //     setBusy(false);
 
-        useNotification.updateNotification("success", message);
+    //     if (error) return useNotification.updateNotification("error", error);
+
+    //     useNotification.updateNotification("success", message);
+    //     fetchLatestUploads();
+    //     setShowConfirmModel(false);
+    // };
+
+    // const handleOnUpdate = (movie) => {
+    //     const updatedMovies = movies.map((m) => {
+    //     if (m.id === movie.id) return movie;
+    //     return m;
+    //     });
+
+    //     setMovies([...updatedMovies]);
+    // };
+
+    const handleUIUpdate = () => fetchLatestUploads();
+
+    useEffect(() => {
         fetchLatestUploads();
-        setShowConfirmModel(false);
-    };
-
-    const handleOnUpdate = (movie) => {
-        const updatedMovies = movies.map((m) => {
-        if (m.id === movie.id) return movie;
-        return m;
-        });
-
-        setMovies([...updatedMovies]);
-    };
-
-        useEffect(() => {
-            fetchLatestUploads();
-        }, []);
+    }, []);
 
 	return (
         <>
@@ -70,13 +76,15 @@ const LatestUploads = () => {
                     Recent Uploads
                 </h1>
 
-                {movies.map((m)=>{
+                {latestsUploads.map((m)=>{
                     return (
                         <MovieListItem
                             key={m.id}
                             movie={m}
-                            onDeleteClick={()=>handleOnDeleteClick(m)}
-                            onEditClick={()=>handleOnEditClick(m)}
+                            afterDelete={handleUIUpdate}
+                            afterUpdate={handleUIUpdate}
+                            // onDeleteClick={()=>handleOnDeleteClick(m)}
+                            // onEditClick={()=>handleOnEditClick(m)}
                             // onOpenClick={onOpenClick}
                         />
                     );
@@ -84,7 +92,7 @@ const LatestUploads = () => {
 
             </div>
 
-            <ConfirmModel
+            {/* <ConfirmModel
                 visible={showConfirmModel}
                 onConfirm={handleOnDeleteConfirm}
                 title='Are you sure?'
@@ -98,7 +106,7 @@ const LatestUploads = () => {
                 initialState={selectedMovie}
                 onSuccess={handleOnUpdate}
                 onClose={()=>setShowUpdateModel(false)}
-            />
+            /> */}
         </>
     );
 };

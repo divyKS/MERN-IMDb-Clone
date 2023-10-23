@@ -7,17 +7,20 @@ import NotificationProvider from "./context/NotificationProvider.jsx";
 import AuthProvider from "./context/AuthProvider.jsx";
 import { BrowserRouter as Router } from "react-router-dom";
 import SearchProvider from "./context/SearchProvider.jsx";
+import MoviesProvider from "./context/MoviesProvider.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Router>
       <NotificationProvider>
         <SearchProvider>
-          <AuthProvider>
-            <ThemeProvider>
-              <App />
-            </ThemeProvider>
-          </AuthProvider>
+          <MoviesProvider>
+            <AuthProvider>
+              <ThemeProvider>
+                <App />
+              </ThemeProvider>
+            </AuthProvider>
+          </MoviesProvider>
         </SearchProvider>
       </NotificationProvider>
     </Router>

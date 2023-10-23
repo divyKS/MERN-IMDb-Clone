@@ -21,10 +21,24 @@ const SearchMovies = () => {
         if(!results.length){
             setResultsNotFound(true);
             return setMovies([]);
-        } 
-        
+        }        
         setResultsNotFound(false);    
         setMovies([...results]);        
+    };
+
+    const handleAfterUpdate = (movie) => {
+        const updatedMovies =  movies.map(m=>{
+            if(m.id === movie.id) return movie;
+            return m;
+        });
+        setMovies([...updatedMovies]);
+    };
+    
+    const handleAfterDelete = (movie) => {
+        const updatedMovies =  movies.filter(m=>{
+            if(m.id!==movie.id) return m;
+        });
+        setMovies([...updatedMovies]);
     };
 
     useEffect(()=>{
@@ -35,7 +49,14 @@ const SearchMovies = () => {
         <div className='p-5 space-y-5'>
             <NotFoundText text='Movie not found with given name' visible={resultsNotFound}/>
             {!resultsNotFound && movies.map((m)=>{
-                return <MovieListItem movie={m} key={m.id}/>
+                return (
+                    <MovieListItem
+                        movie={m}
+                        key={m.id}
+                        afterUpdate={handleAfterUpdate}
+                        afterDelete={handleAfterDelete}
+                    />
+                )
             })}
         </div>
     );
