@@ -39,3 +39,100 @@ exports.parseData = (req, res, next) => {
 
   next();
 };
+
+exports.averageRatingPipeline = (movieId) => {
+  return (
+    [
+      {
+        $lookup: {
+          from: 'Review',
+          localField: 'rating',
+          foreignField: '_id',
+          as: 'Average Rating'
+        }
+      },
+      {
+        $match: {
+          parentMovie: movieId
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          ratingAverage: {
+            $avg: '$rating'
+          },
+          reviewCount: {
+            $sum: 1
+          }
+        }
+      }
+    ]
+  );
+};
+
+exports.relatedMovieAggregation = (tags, movieId) => {
+  return [
+    {
+      $lookup: {
+        from: "Movie",
+        localField: "tags",
+        foreignField: "_id",
+        as: "relatedMovies",
+      },
+    },
+    {
+      $match: {
+        tags: { $in: [...tags] },
+        _id: { $ne: movieId },
+      },
+    },
+    {
+      $project: {
+        title: 1,
+        poster: "$poster.url",
+        responsivePosters: "$poster.responsive",
+      },
+    },
+    {
+      $limit: 5,
+    },
+  ];
+};
+
+exports.topRatedMoviesPipeline = (type) => {
+  return (
+    [
+      {
+        $lookup: {
+          from: 'Movie',
+          localField: 'reviews',
+          foreignField: '_id',
+          as: 'topRated'
+        }
+      },
+      {
+        $match: {
+          reviews: {$exists: true},
+          status: {$eq: 'public'},
+          type: {$eq: type}
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          poster: '$poster.url',
+          reviewCount: {$size: '$reviews'}
+        }
+      },
+      {
+        $sort: {
+          reviewCount: -1
+        }
+      },
+      {
+        $limit: 5
+      }
+    ]
+  );
+};

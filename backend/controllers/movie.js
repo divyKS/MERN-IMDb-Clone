@@ -1,7 +1,8 @@
 const { isValidObjectId } = require("mongoose");
 const Movie = require("../models/movie");
+const Review = require("../models/review");
 const cloudinary = require("cloudinary");
-const { formatActor } = require("../utils/helper");
+const { formatActor, averageRatingPipeline, relatedMovieAggregation, topRatedMoviesPipeline } = require("../utils/helper");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -379,7 +380,7 @@ exports.getMovieForUpdate = async (req, res) => {
   });
 };
 
-exports.searchMovies = async (req, res) =>{
+exports.searchMovies = async (req, res) => {
   const {title} = req.query;
   if(!title.trim()) return res.json({'error': 'cant search for an empty movie'});
   const movies = await Movie.find({title: {$regex: title, $options: 'i'}});
@@ -392,4 +393,146 @@ exports.searchMovies = async (req, res) =>{
       "status":m.status
     }
   })})
+};
+
+// FOR USERS ->
+
+exports.getLatestUploads = async (req, res) => {
+  const result = await Movie.find({status: 'public'}).sort('-createdAt').limit(5);
+  const formattedMovieData = result.map((m) => {
+    return {
+      "id": m._id,
+      "title": m.title,
+      "storyLine": m.storyLine,
+      "poster": m.poster?.url,
+      "trailer": m.trailer?.url
+    }
+  });
+  res.json({'movies': formattedMovieData});
+};
+
+exports.getSingleMovie = async (req, res) => {
+  const { movieId } = req.params;
+
+  if(!isValidObjectId(movieId)) return res.status(401).json({'error': 'movie is not valid id, cant fetch for normal user'});
+
+  const movie = await Movie.findById(movieId).populate('director writers cast.actor');
+
+  const [aggregatedResponse] = await Review.aggregate(averageRatingPipeline(movie._id)); // we can't send the movieId, we'll have to do mongoose.Types.ObjectId(movieId)
+
+  const reviews = {};
+
+  if(aggregatedResponse){
+    const { ratingAverage, reviewCount } = aggregatedResponse;
+    reviews.ratingAverage = parseFloat(ratingAverage).toFixed(1); //we want X.Y form only
+    reviews.reviewCount = reviewCount;
+  } 
+
+  const { _id: id, title, storyLine, cast, writers, director, releaseDate, genres, tags, language, poster, trailer, type } = movie;
+
+  res.json({
+    movie: {
+      id,
+      title,
+      storyLine,
+      releaseDate,
+      genres,
+      tags,
+      language,
+      type,
+      poster: poster?.url,
+      trailer: trailer?.url,
+      cast: cast.map((c) => ({
+        id: c._id,
+        profile: {
+          id: c.actor._id,
+          name: c.actor.name,
+          avatar: c.actor?.avatar?.url,
+        },
+        leadActor: c.leadActor,
+        roleAs: c.roleAs,
+      })),
+      writers: writers.map((w) => ({
+        id: w._id, //so that clicking on writers we can get to know more about them
+        name: w.name,
+      })),
+      director: {
+        id: director._id,
+        name: director.name,
+      },
+      reviews: {...reviews}
+    },
+  });
+};
+
+exports.getRelatedMovies = async (req, res) => {
+  const { movieId } = req.params;
+  if(!isValidObjectId(movieId)) return res.status(401).json({'error': 'movie id invalid, cant get the related movies by tag'});
+  
+  const movie = await Movie.findById(movieId);
+
+  let relatedMovies = await Movie.aggregate(relatedMovieAggregation(movie.tags, movie._id));
+
+  const getTheReview = async (movieId) => {
+    const [aggregatedResponse] = await Review.aggregate(averageRatingPipeline(movieId)); // we can't send the movieId, we'll have to do mongoose.Types.ObjectId(movieId)
+    const reviews = {};  
+    if(aggregatedResponse){
+      const { ratingAverage, reviewCount } = aggregatedResponse;
+      reviews.ratingAverage = parseFloat(ratingAverage).toFixed(1); //we want X.Y form only
+      reviews.reviewCount = reviewCount;
+    } 
+    return reviews;
+  }
+
+  // with this we would get empty objects, since there is async await inside map
+  // relatedMovies = relatedMovies.map(async(m) => {
+  //   const reviews = await getTheReview(m._id);
+  //   return {
+  //     id: m._id,
+  //     title: m.title,
+  //     poster: m.poster,
+  //     reviews: {...reviews}
+  //   }
+  // }) 
+
+  relatedMovies = await Promise.all(relatedMovies.map(async(m) => {
+    const reviews = await getTheReview(m._id);
+    return {
+      id: m._id,
+      title: m.title,
+      poster: m.poster,
+      reviews: {...reviews}
+    }
+  }));
+
+  res.json(relatedMovies);
+
+};
+
+exports.getTopRatedMovies = async (req, res) => {
+  const {type='Film'} = req.query;
+  const movies = await Movie.aggregate(topRatedMoviesPipeline(type));
+  
+  const getTheReview = async (movieId) => {
+    const [aggregatedResponse] = await Review.aggregate(averageRatingPipeline(movieId)); // we can't send the movieId, we'll have to do mongoose.Types.ObjectId(movieId)
+    const reviews = {};  
+    if(aggregatedResponse){
+      const { ratingAverage, reviewCount } = aggregatedResponse;
+      reviews.ratingAverage = parseFloat(ratingAverage).toFixed(1); //we want X.Y form only
+      reviews.reviewCount = reviewCount;
+    } 
+    return reviews;
+  }
+
+  const topRatedMovies = await Promise.all(movies.map(async(m)=>{
+    const reviews = await getTheReview(m._id);
+    return {
+      id: m._id,
+      title: m.title,
+      poster: m.poster,
+      reviews: {...reviews}
+    }
+  }));
+
+  res.json({"movies": topRatedMovies});
 };

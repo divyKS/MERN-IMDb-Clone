@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { isAuth, isAdminAuth } = require("../middlewares/auth");
 const { uploadVideo, uploadImage } = require("../middlewares/multer");
-const { uploadTrailer, createMovie, updateMovieWithoutPoster, updateMovieWithPoster, removeMovie, getMovies, getMovieForUpdate, searchMovies, } = require("../controllers/movie");
+const { uploadTrailer, createMovie, updateMovieWithoutPoster, updateMovieWithPoster, removeMovie, getMovies, getMovieForUpdate, searchMovies, getLatestUploads, getSingleMovie, getRelatedMovies, getTopRatedMovies, } = require("../controllers/movie");
 const { parseData } = require("../utils/helper");
 const { validateMovie, validate, validateTrailer } = require("../middlewares/validators");
 
@@ -29,5 +29,15 @@ router.get('/movies', isAuth, isAdminAuth, getMovies);
 router.get('/for-update/:movieId', isAuth, isAdminAuth, getMovieForUpdate);
 
 router.get('/search', isAuth, isAdminAuth, searchMovies);
+
+// ROUTES FOR USERS ->
+
+router.get('/latest-uploads', getLatestUploads);
+
+router.get('/single/:movieId', getSingleMovie);
+
+router.get('/related/:movieId', getRelatedMovies);
+
+router.get('/top-rated', getTopRatedMovies);
 
 module.exports = router;
