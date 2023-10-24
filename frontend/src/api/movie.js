@@ -111,3 +111,15 @@ export const searchMovieForAdmin = async (title) => {
 		return { error: error.message || error };
 	}
 };
+
+export const getTopRatedMovies = async (type) => {
+	try {
+		let endpoint = '/movie/top-rated';
+		if(type) endpoint += '?type=' + type;
+		const { data } = await client.get(endpoint);
+		return data;
+	  }catch (error) {
+		if (error.response?.data) return error.response.data;
+		return { error: error.message || error };
+	}
+};
