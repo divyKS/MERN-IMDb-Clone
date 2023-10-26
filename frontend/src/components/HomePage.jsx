@@ -1,8 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import NotVerified from './user/NotVerified';
 import TopRatedMovies from './user/TopRatedMovies';
 import TopRatedWebSeries from './user/TopRatedWebSeries';
 import TopRatedTVSeries from './user/TopRatedTVSeries';
+import HeroSlideShow from './user/HeroSlideShow';
 
 const HomePage = () => {
 	return (
@@ -10,9 +11,12 @@ const HomePage = () => {
       {/* Container.jsx below wan't rendering with it*/}
        <div className={"max-w-screen-xl mx-auto px-2 xl:p-0" }> 
         <NotVerified />
-        <TopRatedMovies />
-        <TopRatedWebSeries />
-        <TopRatedTVSeries />
+        <HeroSlideShow />
+        <div className="space-y-3 py-8">
+          <TopRatedMovies />
+          <TopRatedWebSeries />
+          <TopRatedTVSeries />
+        </div>
        </div>
     </div>
   );

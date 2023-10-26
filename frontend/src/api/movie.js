@@ -123,3 +123,13 @@ export const getTopRatedMovies = async (type) => {
 		return { error: error.message || error };
 	}
 };
+
+export const getLatestUploads = async () => {
+	try {
+		const { data } = await client.get('/movie/latest-uploads');
+		return data;
+	  }catch (error) {
+		if (error.response?.data) return error.response.data;
+		return { error: error.message || error };
+	}
+};
