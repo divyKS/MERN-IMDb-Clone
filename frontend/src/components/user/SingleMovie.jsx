@@ -5,10 +5,12 @@ import {Link} from 'react-router-dom';
 import RatingStar from '../RatingStar';
 import RelatedMovies from '../RelatedMovies';
 import { AuthContext } from '../../context/AuthProvider';
+import AddRatingModel from '../model/AddRatingModel'
 
 const SingleMovie = () => {
 	const [movie, setMovie] = useState({});
 	const [ready, setReady] = useState(false);
+	const [showRatingModel, setShowRatingModel] = useState(false);
 	const {movieId} = useParams(); // movieId from the app.jsx <Route path="/movie/:movieId" element={<SingleMovie/>}></Route>
 	const useAuth = useContext(AuthContext);
 	const navigate = useNavigate();
@@ -23,15 +25,17 @@ const SingleMovie = () => {
 	const { id, trailer, poster, title, storyLine, releaseDate, type, director={}, writers=[], cast=[], tags, genres=[],  language, reviews={} } = movie;
 
 	const handleOnRateMovie = () => {
-		if(!useAuth.isLoggedIn) return navigate('/auth/signin');
-		
+		if(!useAuth.authInfo.isLoggedIn) return navigate('/auth/signin');
+		setShowRatingModel(true);
 	};
-
+	
+	const handleOnRatingSuccess = (reviews) => {
+		// to refresh the UI we are updating the movie state altogether
+		setMovie({...movie, reviews:{...reviews}}) ;
+	};
 	useEffect(()=>{
 		if(movieId) fetchMovie();
 	}, [movieId]);
-
-
 
 	if(!ready) return (
 		<div className='h-screen flex justify-center items-center dark:bg-primary bg-white'>
@@ -142,7 +146,8 @@ const SingleMovie = () => {
 				<div className="mt-3">
 					<RelatedMovies movieId={movieId}/>
 				</div>
-			 </div>			 
+			 </div>
+			 <AddRatingModel visible={showRatingModel} onClose={()=>setShowRatingModel(false)} onSuccess={handleOnRatingSuccess}/>
 		</div>
 	);
 };
