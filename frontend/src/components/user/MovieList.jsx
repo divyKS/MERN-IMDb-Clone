@@ -2,6 +2,7 @@ import React from 'react';
 import GridContainer from '../GridContainer';
 import {AiFillStar} from 'react-icons/ai';
 import {Link} from 'react-router-dom';
+import RatingStar from '../RatingStar';
 
 const trimTitle = (title) => {
     if(title.length <= 20) return title;
@@ -39,14 +40,7 @@ const ListItem = ({movie}) => {
             >
                 {trimTitle(title)}
             </h1>
-            {reviews.ratingAverage ? (
-                <p className="flex items-center space-x-1 dark:text-highlight-dark text-highlight">
-                    <span>{reviews.ratingAverage}</span>
-                    <AiFillStar />
-                </p>
-            ) : (
-                <p className='dark:text-highlight-dark text-highlight'>No Reviews</p>
-            )}
+            <RatingStar rating={reviews.ratingAverage}/>
         </Link>
     );
 };

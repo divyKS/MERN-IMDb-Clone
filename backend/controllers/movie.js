@@ -505,7 +505,7 @@ exports.getRelatedMovies = async (req, res) => {
     }
   }));
 
-  res.json(relatedMovies);
+  res.json({relatedMovies}); // !has to be sent back as object otherwise won't work
 
 };
 
