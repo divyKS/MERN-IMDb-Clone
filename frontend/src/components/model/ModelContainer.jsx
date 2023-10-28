@@ -23,7 +23,7 @@ const ModelContainer = ({ visible, children, onClose, ignoreContainer }) => {
             onClick={handleClick}
             className="fixed inset-0 dark:bg-white dark:bg-opacity-50 bg-primary bg-opacity-50 backdrop-blur-sm flex items-center justify-center"
         >
-            {/*  not simply rendering the children inside a div here because we want to have differnt style for when we view all the writers*/}
+            {/*  not simply rendering the children inside a div here because we want to have different style for when we view all the writers*/}
 			{renderChildren()}
 		</div>
     );

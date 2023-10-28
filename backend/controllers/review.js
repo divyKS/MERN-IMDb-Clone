@@ -87,7 +87,7 @@ exports.getReviewsByMovie = async (req, res) => {
 			path: 'reviews',
 			populate: { path: 'owner', select: 'name' },
 		})
-		.select('reviews');
+		.select('reviews title');//title so that we can render the name of the movie in the review section when we fetch for the reviews with the movie id 
 
     const requiredReviews = movie.reviews.map(r => {
         const {owner, content, rating, _id: reviewId} = r;
@@ -102,6 +102,10 @@ exports.getReviewsByMovie = async (req, res) => {
             rating
         }
     })
-    res.json({"reviews": requiredReviews});
-    
+    res.json({
+        "movie": {
+            "title": movie.title,
+            "reviews": requiredReviews
+        }
+    });    
 };

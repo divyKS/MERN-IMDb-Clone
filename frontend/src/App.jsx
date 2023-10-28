@@ -13,6 +13,7 @@ import { AuthContext } from "./context/AuthProvider";
 import { useContext } from "react";
 import AdminNavigator from "./navigator/AdminNavigator";
 import SingleMovie from "./components/user/SingleMovie";
+import MovieReviews from "./components/user/MovieReviews";
 
 function App() {
   const useAuth = useContext(AuthContext);
@@ -31,6 +32,7 @@ function App() {
         <Route path="/auth/forgot-password" element={<ForgetPassword />}></Route>
         <Route path="/auth/reset-password" element={<ConfirmPassword />}></Route>
         <Route path="/movie/:movieId" element={<SingleMovie/>}></Route>
+        <Route path="/movie/reviews/:movieId" element={<MovieReviews/>}></Route>
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </>

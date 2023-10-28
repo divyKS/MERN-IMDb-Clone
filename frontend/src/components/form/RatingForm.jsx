@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ModelContainer from '../model/ModelContainer';
 import { AiOutlineStar, AiFillStar } from 'react-icons/ai';
 import Submit from './Submit';
 
 const ratings = new Array(10).fill('');
 
-const RatingForm = ({ onSubmit, busy }) => {
+const RatingForm = ({ onSubmit, busy, initialState }) => {
     const [selectedRatings, setSelectedRatings] = useState([]);
     const [content, setContent] = useState('');
 
@@ -27,6 +27,13 @@ const RatingForm = ({ onSubmit, busy }) => {
         }
         onSubmit(data);
     };
+
+    useEffect(()=>{
+        if(initialState){
+            setContent(initialState.content);
+            setSelectedRatings(new Array(parseInt(initialState.rating)).fill('')); // otherwise we wont be able to render the stars, since we wont be able to use the map method on it
+        }
+    }, [initialState]);
 
 	return (
         <div>
