@@ -8,6 +8,8 @@ exports.addReview = async (req, res) => {
     const { content, rating } = req.body;
     const userId = req.user._id; // gets added into req from the isAuth
 
+    if(!req.user.isVerified) return res.status(401).json({'error': 'Please verify your account first!'});
+
     if(!isValidObjectId(movieId)) return res.status(401).json({'error': 'invalid movie id for the movie re'});
 
     const movie = await Movie.findOne({_id:movieId, status: 'public'}) // users can add reviews to the public id only

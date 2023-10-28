@@ -82,7 +82,7 @@ const LatestUploads = () => {
                             key={m.id}
                             movie={m}
                             afterDelete={handleUIUpdate}
-                            afterUpdate={handleUIUpdate}
+                            afterUpdate={handleUIUpdate }
                             // onDeleteClick={()=>handleOnDeleteClick(m)}
                             // onEditClick={()=>handleOnEditClick(m)}
                             // onOpenClick={onOpenClick}
