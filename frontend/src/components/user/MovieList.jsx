@@ -13,16 +13,18 @@ const trimTitle = (title) => {
 const MovieList = ({ title, movies }) => {
     if(!movies.length) return null;
 	return (
-        <div>
-            <h1 className="text-2xl dark:text-white text-secondary font-semibold mb-5">{title}</h1>
-            <GridContainer>
-                {movies.map(( movie ) => {
-                        return (
-                            <ListItem key={movie.id} movie={movie}/>
-                        );
-                })}
-            </GridContainer>
-        </div>
+		<div>
+			{title ? (
+				<h1 className="text-2xl dark:text-white text-secondary font-semibold mb-5">
+					{title}
+				</h1>
+			) : null}
+			<GridContainer>
+				{movies.map((movie) => {
+					return <ListItem key={movie.id} movie={movie} />;
+				})}
+			</GridContainer>
+		</div>
 	);
 };
 
@@ -33,7 +35,7 @@ const ListItem = ({movie}) => {
             <img
                 src={getPoster(responsivePosters) || poster}
                 alt={title}
-                className="aspect-video object-cover"
+                className="aspect-video object-cover w-full"
             />
             <h1
                 className="text-lg dark:text-white text-secondary font-semibold"

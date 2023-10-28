@@ -2,7 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const Movie = require("../models/movie");
 const Review = require("../models/review");
 const cloudinary = require("cloudinary");
-const { formatActor, averageRatingPipeline, relatedMovieAggregation, topRatedMoviesPipeline } = require("../utils/helper");
+const { formatActor, averageRatingPipeline, relatedMovieAggregation, topRatedMoviesPipeline, getAverageRatings } = require("../utils/helper");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -544,4 +544,25 @@ exports.getTopRatedMovies = async (req, res) => {
   }));
 
   res.json({"movies": topRatedMovies});
+};
+
+exports.searchPublicMovies = async (req, res) => {
+  const {title} = req.query;
+
+  if(!title.trim()) return res.json({'error': 'cant search for an empty movie'});
+
+  const movies = await Movie.find({title: {$regex: title, $options: 'i'}, status: 'public'});
+
+ const requiredFormatMovies = await Promise.all(movies.map(async(m)=>{
+    const reviews = await getAverageRatings(m._id);
+    return {
+      id: m._id,
+      title: m.title,
+      poster: m.poster?.url,
+      responsivePosters: m.poster?.responsive,
+      reviews: {...reviews}
+    }
+  }));
+
+  res.json({"results": requiredFormatMovies});
 };

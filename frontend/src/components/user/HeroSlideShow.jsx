@@ -103,7 +103,7 @@ const HeroSlideShow = () => {
 
 	return (
         <div className="w-full flex py-2">            
-            <div className='w-4/5 aspect-video relative overflow-hidden'>
+            <div className='md:w-4/5 w-full aspect-video relative overflow-hidden'>
                 <Slide
                     //current slide
                     title={currentSlide.title}
@@ -124,7 +124,7 @@ const HeroSlideShow = () => {
                 <SlideShowControls onNextClick={handleOnNextClick} onPrevClick={handleOnPrevClick}/>
             </div>
 
-            <div className='w-1/5 aspect-video space-y-3 px-3'>
+            <div className='w-1/5 md:block hidden aspect-video space-y-3 px-3'>
                 <h1 className='font-semibold text-2xl text-primary dark:text-white'>
                     Up Next
                 </h1>
