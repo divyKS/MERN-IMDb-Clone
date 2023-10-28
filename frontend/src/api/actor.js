@@ -77,3 +77,14 @@ export const deleteActor = async (id) => {
 		return { error: error.message || error };
 	}
 };
+
+export const getActorProfile = async (id) => {
+	try {
+		const { data } = await client.get('/actor/single/'+id);
+		return data;
+	} catch (error) {
+		if (error.response?.data) return error.response.data;
+		return { error: error.message || error };
+	}
+};
+

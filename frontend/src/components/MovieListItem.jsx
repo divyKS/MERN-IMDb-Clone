@@ -3,7 +3,7 @@ import { BsTrash3, BsPencilSquare, BsBoxArrowUpRight } from 'react-icons/bs'
 import ConfirmModel from './model/ConfirmModel';
 import { deleteMovie } from '../api/movie';
 import UpdateMovie from './model/UpdateMovie';
-import { AiFillNotification } from 'react-icons/ai';
+import { getPoster } from '../utils/helper';
 
 const MovieListItem = ({ movie, afterDelete, afterUpdate }) => {
     const [busy, setBusy] = useState(false);
@@ -58,7 +58,9 @@ const MovieListItem = ({ movie, afterDelete, afterUpdate }) => {
 
 const MovieCard = ({ movie, onDeleteClick, onEditClick, onOpenClick }) => {
     
-    const {title, genres, poster, status} = movie;
+    const {title, genres, poster, status, responsivePosters} = movie;
+
+    
 
 	return (
             <table className='w-full border-b'>
@@ -66,7 +68,7 @@ const MovieCard = ({ movie, onDeleteClick, onEditClick, onOpenClick }) => {
                     <tr>
                         <td>
                             <div className='w-24'>
-                                <img src={poster} alt={title} className='w-full aspect-video'/>
+                                <img src={getPoster(responsivePosters) || poster} alt={title} className='w-full aspect-video'/>
                             </div>
                         </td>
     

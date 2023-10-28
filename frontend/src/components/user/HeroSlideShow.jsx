@@ -17,8 +17,8 @@ const HeroSlideShow = () => {
     const slideRef = useRef();
     const clonedSlideRef = useRef();
 
-    const fetchLatestUploads = async () => {
-        const {error, movies} = await getLatestUploads();
+    const fetchLatestUploads = async (signal) => {
+        const {error, movies} = await getLatestUploads(signal);
         if(error) return console.log('cant fetch movies for slides -> ', error);
         setSlides([...movies]);
         setCurrentSlide(movies[0]);
@@ -82,9 +82,11 @@ const HeroSlideShow = () => {
     }
 
     useEffect(()=>{
-        fetchLatestUploads();
+        const ac = new AbortController();
+        fetchLatestUploads(ac.signal);
         document.addEventListener('visibilitychange', handleOnVisibilityChange);
-        return () => { 
+        return () => {
+            // ac.abort(); 
             pauseSlideShow();
             document.removeEventListener('visibilitychange', handleOnVisibilityChange);
         }; // so that when we go on some other link this automatic slide show can stop, and we don't get errors of that unmounted prop is being edited or so, but it still runs if we are on another tab and we have to stop that

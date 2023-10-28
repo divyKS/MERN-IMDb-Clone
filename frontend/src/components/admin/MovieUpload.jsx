@@ -16,7 +16,14 @@ const MovieUpload = ({ visible, onClose }) => {
 	const [videoInfo, setVideoInfo] = useState({});
 	const [busy, setBusy] =useState(false);
 
-	
+	const resetState = () => {
+		// if trailer is uploaded but there is som error and the upload form closes, on opening the form again we dont get to choose the trailer, since we are rendering it only when the trailer is not selected, we were setting the state of the trailer to true but never false
+		setVideoSelected(false);
+		setVideoUploaded(false);
+		setUploadProgress(0);
+		setVideoInfo({});
+	};
+
 	const handleUploadTrailer = async (data) => {
 		const { error, url, public_id } = await uploadTrailer(data, setUploadProgress);
 		if(error) useNotification.updateNotification('error', error);
@@ -50,10 +57,12 @@ const MovieUpload = ({ visible, onClose }) => {
 		movieInfoFormData.append('trailer', JSON.stringify(videoInfo));
 
 		setBusy(true);
-		const res = await uploadMovie(movieInfoFormData);
+		const {error, movie} = await uploadMovie(movieInfoFormData);
 		setBusy(false);
-		console.log('Response from uploading movie -> ', res);
-		onClose();
+		if(error) console.log('Response from uploading movie -> ', error);
+		console.log('movie has been uploaded successfully -> ', movie);
+		resetState();
+		if(movie) onClose(); // we don't want to close the form if there is some error, we want to close the form only when it is successfully updated
 	};
 
 	return (

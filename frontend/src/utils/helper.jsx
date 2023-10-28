@@ -11,3 +11,10 @@ export const renderItem = (result) => {
       </div>
   );
 };
+
+export const getPoster = (resPos=[]) => {
+  if(!resPos.length) return null;
+  return resPos[resPos.length - 2];
+  // if(resPos.length == 2) return resPos[0];
+  // return resPos[1];
+};

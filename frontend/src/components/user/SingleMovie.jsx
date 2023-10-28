@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getSingleMovie } from '../../api/movie';
-import {Link} from 'react-router-dom';
 import RatingStar from '../RatingStar';
 import RelatedMovies from '../RelatedMovies';
 import { AuthContext } from '../../context/AuthProvider';
 import AddRatingModel from '../model/AddRatingModel'
 import CustomButtonLink from '../CustomButtonLink';
+import ProfileModel from '../model/ProfileModel';
 
 const convertReviewCount = (count = 0) => {
 	if(count <= 999) return count;
@@ -17,6 +17,9 @@ const SingleMovie = () => {
 	const [movie, setMovie] = useState({});
 	const [ready, setReady] = useState(false);
 	const [showRatingModel, setShowRatingModel] = useState(false);
+	const [showProfileModel, setShowProfileModel] = useState(false);
+	const [selectedProfile, setSelectedProfile] = useState({});
+
 	const {movieId} = useParams(); // movieId from the app.jsx <Route path="/movie/:movieId" element={<SingleMovie/>}></Route>
 	const useAuth = useContext(AuthContext);
 	const navigate = useNavigate();
@@ -38,6 +41,11 @@ const SingleMovie = () => {
 	const handleOnRatingSuccess = (reviews) => {
 		// to refresh the UI we are updating the movie state altogether
 		setMovie({...movie, reviews:{...reviews}}) ;
+	};
+
+	const handleProfileClick = (profile) => {
+		setSelectedProfile(profile);
+		setShowProfileModel(true);
 	};
 	
 	useEffect(()=>{
@@ -89,7 +97,7 @@ const SingleMovie = () => {
 
 					<div className='flex space-x-2'>
 						<p className='text-light-subtle dark:text-dark-subtle font-semibold'>Director:</p>
-						<p className='text-highlight dark:text-highlight-dark hover:underline cursor-pointer'>{director.name}</p>
+						<p className='text-highlight dark:text-highlight-dark hover:underline cursor-pointer' onClick={()=>handleProfileClick(director)}>{director.name}</p>
 					</div>
 					
 					<div className='flex'>
@@ -162,7 +170,10 @@ const SingleMovie = () => {
 					<RelatedMovies movieId={movieId}/>
 				</div>
 			 </div>
+			 
+			 <ProfileModel visible={showProfileModel} onClose={()=>setShowProfileModel(false)} profileId={selectedProfile.id}/>
 			 <AddRatingModel visible={showRatingModel} onClose={()=>setShowRatingModel(false)} onSuccess={handleOnRatingSuccess}/>
+
 		</div>
 	);
 };

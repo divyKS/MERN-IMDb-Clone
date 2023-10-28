@@ -3,6 +3,7 @@ import GridContainer from '../GridContainer';
 import {AiFillStar} from 'react-icons/ai';
 import {Link} from 'react-router-dom';
 import RatingStar from '../RatingStar';
+import { getPoster } from '../../utils/helper';
 
 const trimTitle = (title) => {
     if(title.length <= 20) return title;
@@ -26,11 +27,11 @@ const MovieList = ({ title, movies }) => {
 };
 
 const ListItem = ({movie}) => {
-    const {title, poster, reviews } = movie;
+    const {title, poster, reviews, responsivePosters } = movie;
     return (
         <Link to={'/movie/'+movie.id}>
             <img
-                src={poster}
+                src={getPoster(responsivePosters) || poster}
                 alt={title}
                 className="aspect-video object-cover"
             />

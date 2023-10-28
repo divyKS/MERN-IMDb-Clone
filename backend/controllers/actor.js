@@ -192,7 +192,7 @@ exports.getSingleActor = async (req, res) => {
           "No actor was found in the db corresponding the the id present in the url params to get a single actor",
       });
 
-  res.json(formatActor(actor));
+  res.json({"actor": formatActor(actor)});
 };
 
 exports.getActors = async (req, res) => {
